@@ -1,6 +1,6 @@
 ---
 name: agent-draw
-description: 生圖技能。當使用者要求「畫一張」、「生一張圖」、「做一張圖」、「產生圖片」、「畫個封面」、「畫插圖」、「畫示意圖」、「畫分鏡」，或要「改這張圖」、「把背景換成 XX」等任何需要 AI 生成或修改圖像的情境時，請一定要使用此技能。優先使用 agent 內建生圖工具；沒有內建能力時，執行本 Skill 同目錄的 draw.py 以 gpt-image-2 生圖，預設 quality low，存到當前專案的 slides/generated/（無則 generated/）。
+description: 生圖技能。當使用者要求「畫一張」、「生一張圖」、「做一張圖」、「產生圖片」、「畫個封面」、「畫插圖」、「畫示意圖」、「畫分鏡」，或要「改這張圖」、「把背景換成 XX」等任何需要 AI 生成或修改圖像的情境時，請一定要使用此技能。優先使用 agent 內建生圖工具；沒有內建能力但本機有已登入、具內建生圖的 agent 命令列程式時，交由它代為生圖；都沒有時，執行本 Skill 同目錄的 draw.py 以 gpt-image-2 生圖，預設 quality low，存到當前專案的 slides/generated/（無則 generated/）。
 ---
 
 # 生圖
@@ -14,8 +14,10 @@ description: 生圖技能。當使用者要求「畫一張」、「生一張圖�
    存在就走這條，不需要 API Key。
    **找不到就不要假裝有這個能力** —— 回報現況並詢問是否改走路線 B。
    也不要因為目錄裡有腳本就自動改走 API。
-2. **路線 B：OpenAI API + 同目錄的 `draw.py`** —— Claude Code 與 OpenCode 沒有內建生圖，
-   一律走這條；其他 agent 在使用者明確指定「用 OpenAI 生圖」時才走。
+2. **路線 C：呼叫 Codex CLI 代為生圖** —— 本身沒有內建生圖的 agent（Claude Code、OpenCode），
+   若這台電腦裝了 Codex 且以 ChatGPT 帳號登入，優先走這條：扣的是 ChatGPT 訂閱額度，不需要 API Key。
+3. **路線 B：OpenAI API + 同目錄的 `draw.py`** —— 沒有內建生圖、也沒有可用的 Codex CLI 時才走；
+   其他 agent 在使用者明確指定「用 OpenAI API 生圖」時才走。
 
 > ⚠️ 訂閱額度與 OpenAI API Platform 是**分開的兩套帳**。能用內建工具不代表 API 已開通。
 
@@ -27,6 +29,24 @@ description: 生圖技能。當使用者要求「畫一張」、「生一張圖�
    （Codex：`~/.codex/generated_images/<工作識別碼>/`）。
 4. 專案要引用的圖片，複製到專案 `assets/` 或使用者指定位置，並回報新路徑
    —— **不要只留在暫存目錄**。
+
+## 路線 C 流程（Codex CLI 代為生圖）
+
+1. **找 `codex.exe`**（依序，找到即停；版本資料夾會隨更新改名，不可寫死）：
+   - Windows Codex App：`Join-Path (Get-AppxPackage OpenAI.Codex).InstallLocation 'app\resources\codex.exe'`
+   - App 附帶的舊副本：`~/.codex/.sandbox-bin/codex.exe`（版本可能落後）
+   - 獨立安裝的 CLI：`Get-Command codex`（macOS／Linux：`which codex`）
+2. **確認可用**：`& $cx login status` 要顯示 `Logged in using ChatGPT`；
+   `& $cx features list` 裡 `image_generation` 要是 `true`。任一不符就回報現況，改問是否走路線 B。
+3. **執行**（在輸出資料夾跑，要求它把圖複製進來並回報路徑）：
+
+   ```powershell
+   & $cx exec --skip-git-repo-check --cd "<輸出資料夾>" --sandbox workspace-write "用內建生圖工具生成一張圖：<完整提示詞>。生成後把圖片複製到目前工作資料夾，檔名 <名稱>.png，最後只回報檔案的絕對路徑。"
+   ```
+
+   一張約 1 分鐘，逾時至少給 5 分鐘；原圖同時留在 `~/.codex/generated_images/<工作識別碼>/`。
+   不要加 `--dangerously-bypass-approvals-and-sandbox`，`workspace-write` 已足夠複製檔案。
+4. **親自開圖檢查**後才回報，不要只信 Codex 的文字回報。
 
 ## 路線 B 流程
 
@@ -100,5 +120,5 @@ Key 讀取順序：shell 環境變數 → 當前目錄 `.env` → `~/.openai.env
 
 確認圖片存在、可開啟、尺寸與格式符合需求。**中文文字需人工檢查**，重要文字建議後製。
 
-回報：使用路線（A／B）、API Key 已設定／未設定（不顯示內容）、`draw.py` 是否存在、
+回報：使用路線（A／B／C；C 另報 `codex.exe` 路徑與版本）、API Key 已設定／未設定（不顯示內容）、`draw.py` 是否存在、
 模型、品質、尺寸、測試結果、**完整輸出檔案路徑**。

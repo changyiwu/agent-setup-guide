@@ -31,6 +31,7 @@ Claude Code / Codex / OpenCode / Antigravity 四個 agent，不用再維護四�
 - 2026-09-18：#07 實測 H3 **多段短片**（四段約 23 秒）——定妝照、去人的場景版、參考聲音統一各段；大特寫會禿、雙人對話推近擋不住、視線約 4 秒衰減、段落接點要換機位；FL2VA 首尾幀接縫無痕但較不像；comfy-cli 讀不了 0.36.0 的 i2v 範本改走 `POST /prompt`；新增 `models/qwen-image-edit.md`（guide v0.14）
 - 2026-09-20：#07 實測 H3 **參考影片**（四組對照，含刪掉機位句的 C／D）——不控制機位、不搬運內容（不必去人）、成本 3.5 倍，只有風格偏移；`ref_video_0` 型別是 IMAGE 要 `LoadVideo → GetVideoComponents` 轉接；「Blender 灰模 previz」是 Seedance 2.5 的玩法不可搬用（guide 步驟九加警告，版號未升）
 - 2026-09-21：新增 #08 Blender 背景 `bpy` runner；2026-09-22 升級 v0.3，以 Blender Lab 官方 MCP 作即時主線、runner 作可重現備援
+- 2026-10-11：#05 生圖新增**路線 C**——沒有內建生圖的 agent（Claude Code、OpenCode）以 `codex exec` 借用 Codex 內建生圖，不需 API Key；Windows MSIX 版 `codex.exe` 不在 PATH，以 `Get-AppxPackage OpenAI.Codex` 現查（guide v1.2）
 
 ## 目標與路線圖
 
