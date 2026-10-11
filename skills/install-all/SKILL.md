@@ -23,7 +23,7 @@ description: 一次安裝並執行全部九個懶人包技能（環境建置、G
 | 04 | `agent-firebase` | Firebase / Firestore MCP | Node.js、Google 帳號 |
 | 05 | `agent-draw` | 生圖（agent 內建或 OpenAI gpt-image-2） | uv、（路線 B）OpenAI API Key |
 | 06 | `agent-cloudflare` | Wrangler 登入、部署靜態網站到 Cloudflare Workers，可選加 D1 資料庫與 API | Node.js 20+、Cloudflare 帳號 |
-| 07 | `agent-comfyui` | 用 comfy-cli 操作本機 ComfyUI：改參數、送出、取回生成結果 | uv、已安裝的 ComfyUI、NVIDIA 顯卡 8GB 以上 |
+| 07 | `agent-comfyui` | 用 comfy-cli 操作本機 ComfyUI：改參數、送出、取回生成結果 | uv、已安裝的 ComfyUI、NVIDIA 顯卡 8GB 以上（Windows on ARM 未驗證） |
 | 08 | `agent-blender` | 用本機 Blender 與 bpy 建模、渲染及匯出 3D 場景 | uv、已安裝的 Blender 4.2 以上 |
 
 安裝後的名稱**四個 agent 相同**，就是上表的名稱。共用 `agent-` 前綴讓它們在全域目錄集中成一區。

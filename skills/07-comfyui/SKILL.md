@@ -49,6 +49,8 @@ description: 用官方 comfy-cli 操作本機 ComfyUI：套用範本或使用者
 3. **關閉使用統計**：`comfy tracking disable`（隱私優先，使用者想開再開）。
 4. **連線驗收**：`comfy --json system-stats`，回報 ComfyUI 版本、GPU 與 VRAM（`devices[0].vram_total`，步驟 5 選版本用）。
    `comfy which` 對 Desktop 會指到不存在的 `Documents\comfy\ComfyUI`，**這是正常的，忽略它**。
+   **Windows on ARM（RTX Spark 等）多驗一項**：`devices[0].type` 必須是 `cuda`，是 `cpu` 就代表 GPU 沒用上，
+   生圖會慢到不實用——照〈Windows on ARM〉一節處理，不要直接往下做。
    **只要求「連接 ComfyUI」時，做到這裡就結束。**
 5. **選工作流程**（先問使用者要做什麼）：
    - 官方範本：`comfy --json templates ls --type image`（或 `audio`／`video`）→
@@ -56,7 +58,7 @@ description: 用官方 comfy-cli 操作本機 ComfyUI：套用範本或使用者
      `comfy --json templates fetch <名稱> -o <檔>`。`templates check` 要 ComfyUI 在線（否則回 `server_not_running`），`fetch` 不用。
      名稱以 `api_` 開頭的範本是付費雲端節點。
    - **依步驟 4 的 VRAM 選版本**：該模型有〈模型筆記〉就先讀再選。沒有筆記時，模型檔總大小超過 VRAM 就先找量化版範本或量化檔，
-     不要讓它靠系統記憶體硬跑。
+     不要讓它靠系統記憶體硬跑。統一記憶體的機器（RTX Spark）回報的 `vram_total` 是整池記憶體，見〈Windows on ARM〉。
    - 使用者自己的：🖐️ 請使用者在 ComfyUI 把工作流程存成 JSON（UI 或 API 格式都可以）。
      或直接取使用者在 ComfyUI 生過的 PNG：它的 `prompt` 文字區塊就是完整的 API 格式工作流程
      （`json.loads(Image.open(p).info["prompt"])`；ComfyUI 的 `.venv` 裡就有 Pillow）。工作流程檔放專案的 `comfyui/`。
@@ -131,6 +133,18 @@ description: 用官方 comfy-cli 操作本機 ComfyUI：套用範本或使用者
 - 不把 `COMFY_API_KEY` 寫進檔案、指令列或對話。
 - 刪除模型、輸出檔、工作流程前再次確認。
 - 「安裝 Skill」不等於「授權執行它」：步驟 1、2 與上面各條要逐項確認；改參數、預檢、送出本機免費工作不必再問。
+
+## Windows on ARM（RTX Spark 等，尚未實機驗證）
+
+- **先看 GPU 有沒有用上**（步驟 4 的 `devices[0].type`）。ComfyUI Desktop 有 arm64 安裝檔，但它裝的 PyTorch 在 ARM 上
+  能不能走 CUDA 沒驗證過；x64 版靠模擬執行時一定只有 CPU（模擬中的程式載不到 ARM64 的 NVIDIA 驅動）。
+- 是 `cpu` 的話，GPU 版只剩手動安裝一條路，**先跟使用者說明這是開發者預覽、可能不穩，同意才做**：
+  原生 ARM64 的 Python 3.12（`uv python install cpython-3.12-windows-aarch64-none`）＋ NVIDIA 的 Windows on Arm 驅動與 CUDA 預覽版＋
+  `--extra-index-url https://pypi.nvidia.com/nvtorch_oot_nightly` 裝 `torch torchvision torchaudio`（PyTorch 官方索引沒有 ARM64 的 CUDA 版）。
+  其他相依可能缺 ARM64 wheel，裝不起來就停下來回報，不要改裝 x64 版硬跑。
+- **RTX Spark 是統一記憶體**：`vram_total` 回報的是 CPU 與 GPU 共用的整池，Windows 和其他程式也從這裡拿。
+  選版本時把可用量當成「總量減 10 GB 左右」，背景啟動時加 `--reserve-vram 6 --disable-pinned-memory --disable-async-offload`
+  （統一記憶體不需要釘選記憶體與非同步搬移，開著只會同一份資料佔兩次）。
 
 ## 復原
 
