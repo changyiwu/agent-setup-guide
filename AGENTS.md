@@ -32,6 +32,7 @@ Claude Code / Codex / OpenCode / Antigravity 四個 agent，不用再維護四�
 - 2026-09-20：#07 實測 H3 **參考影片**（四組對照，含刪掉機位句的 C／D）——不控制機位、不搬運內容（不必去人）、成本 3.5 倍，只有風格偏移；`ref_video_0` 型別是 IMAGE 要 `LoadVideo → GetVideoComponents` 轉接；「Blender 灰模 previz」是 Seedance 2.5 的玩法不可搬用（guide 步驟九加警告，版號未升）
 - 2026-09-21：新增 #08 Blender 背景 `bpy` runner；2026-09-22 升級 v0.3，以 Blender Lab 官方 MCP 作即時主線、runner 作可重現備援
 - 2026-10-11：#05 生圖新增**路線 C**——沒有內建生圖的 agent（Claude Code、OpenCode）以 `codex exec` 借用 Codex 內建生圖，不需 API Key；Windows MSIX 版 `codex.exe` 不在 PATH，以 `Get-AppxPackage OpenAI.Codex` 現查（guide v1.2）
+- 2026-10-11：#07 補 Windows on ARM（RTX Spark，未實機驗證）注意事項，放 `skills/07-comfyui/references/windows-arm.md`；#07 `SKILL.md` 剛好 150 行，之後新增內容一律放附屬檔
 
 ## 目標與路線圖
 
@@ -90,7 +91,7 @@ agents-lazy-guide/
 │   ├── 04-firebase/SKILL.md
 │   ├── 05-draw/SKILL.md ＋ draw.py
 │   ├── 06-cloudflare/SKILL.md ＋ references/（D1、自動部署路線 B，隨技能安裝）
-│   ├── 07-comfyui/SKILL.md ＋ models/（各模型筆記，隨技能安裝）
+│   ├── 07-comfyui/SKILL.md ＋ models/（各模型筆記）、references/（平台專屬，如 Windows on ARM），隨技能安裝
 │   ├── 08-blender/SKILL.md ＋ scripts/、templates/、references/（官方 MCP＋背景 runner）
 │   └── install-all/SKILL.md
 └── scripts/
