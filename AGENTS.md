@@ -33,6 +33,7 @@ Claude Code / Codex / OpenCode / Antigravity 四個 agent，不用再維護四�
 - 2026-09-21：新增 #08 Blender 背景 `bpy` runner；2026-09-22 升級 v0.3，以 Blender Lab 官方 MCP 作即時主線、runner 作可重現備援
 - 2026-10-11：#05 生圖新增**路線 C**——沒有內建生圖的 agent（Claude Code、OpenCode）以 `codex exec` 借用 Codex 內建生圖，不需 API Key；Windows MSIX 版 `codex.exe` 不在 PATH，以 `Get-AppxPackage OpenAI.Codex` 現查（guide v1.2）
 - 2026-10-11：#07 補 Windows on ARM（RTX Spark，未實機驗證）注意事項，放 `skills/07-comfyui/references/windows-arm.md`；#07 `SKILL.md` 剛好 150 行，之後新增內容一律放附屬檔
+- 2026-10-12：#07 實測 H3 **動作參考**——Blender 灰模動作片接 `<Video 1>`，兩個 seed 都照做舉手、轉身、蹲下且時間逐格對齊，主體大小位置也跟參考；推翻 09-20「灰模 previz 不可搬用」的警告（只對機位成立），寫入 `models/minimax-h3.md`〈動作參考〉（guide v0.15）
 
 ## 目標與路線圖
 
