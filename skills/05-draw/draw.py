@@ -13,8 +13,7 @@
   3. 使用者 home 的 ~/.openai.env（全域備援）
 
 輸出：
-  預設放在「當前工作目錄/slides/generated/」
-  若該目錄不存在，會建立「./generated/」
+  預設放在「當前工作目錄/output/」
 """
 
 import os
@@ -49,11 +48,7 @@ def load_env():
 def resolve_outdir(user_outdir):
     if user_outdir:
         return Path(user_outdir)
-    cwd = Path.cwd()
-    slides_dir = cwd / "slides"
-    if slides_dir.exists():
-        return slides_dir / "generated"
-    return cwd / "generated"
+    return Path.cwd() / "output"
 
 
 def _save_results(result, name, n, outdir):

@@ -68,7 +68,7 @@ Comfy 官方同時提供 CLI 與 MCP，**本懶人包只用 CLI**。
 - [ ] `comfy --json system-stats` 顯示你的 ComfyUI 版本與顯卡
 - [ ] 至少一個範本 `templates check` 結果為可執行（沒有缺模型）
 - [ ] 送出前 `workflow validate` 通過
-- [ ] 實際生成一張圖，檔案取回專案的 `generated/` 資料夾，打得開
+- [ ] 實際生成一張圖，檔案取回專案的 `output/` 資料夾，打得開
 - [ ] 過程中沒有花費任何 Comfy 點數
 
 ---
@@ -483,10 +483,10 @@ comfy --json jobs watch <prompt_id>
 完成才會 exit 0；失敗 exit 1 並附錯誤原因。最後取回：
 
 ```bash
-comfy --json download <prompt_id> -o generated
+comfy --json download <prompt_id> -o output
 ```
 
-專案有 `slides/` 資料夾的話改用 `-o slides/generated`（與 #05 生圖一致）。
+與 #05 生圖一致，都放專案的 `output/`。
 下載的檔名是 `prompt_id 前 8 碼_序號`，例如 `d7cc3dae_000.png`，需要時自行改名。
 
 **為什麼要分兩段，而不是 `run --wait` 一次等完**：agent 的指令多半有時間上限。

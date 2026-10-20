@@ -90,7 +90,7 @@ description: 用官方 comfy-cli 操作本機 ComfyUI：套用範本或使用者
    ```
    comfy --json run --workflow <檔> --no-watch     # 立刻回傳 data.prompt_id
    comfy --json jobs watch <prompt_id>              # 完成才 exit 0，失敗 exit 1
-   comfy --json download <prompt_id> -o generated   # 專案有 slides/ 就用 slides/generated
+   comfy --json download <prompt_id> -o output      # 與 draw 一致，放專案的 output/
    ```
 
    `jobs watch` 逾時或 agent 的指令時限到了，**工作仍在 ComfyUI 上跑**：重跑 `jobs watch` 接回，

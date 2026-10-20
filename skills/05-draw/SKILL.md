@@ -1,6 +1,6 @@
 ---
 name: draw
-description: 生圖技能。當使用者要求「畫一張」、「生一張圖」、「做一張圖」、「產生圖片」、「畫個封面」、「畫插圖」、「畫示意圖」、「畫分鏡」，或要「改這張圖」、「把背景換成 XX」等任何需要 AI 生成或修改圖像的情境時，請一定要使用此技能。優先使用 agent 內建生圖工具；沒有內建能力但本機有已登入、具內建生圖的 agent 命令列程式時，交由它代為生圖；都沒有時，執行本 Skill 同目錄的 draw.py 以 gpt-image-2 生圖，預設 quality low，存到當前專案的 slides/generated/（無則 generated/）。
+description: 生圖技能。當使用者要求「畫一張」、「生一張圖」、「做一張圖」、「產生圖片」、「畫個封面」、「畫插圖」、「畫示意圖」、「畫分鏡」，或要「改這張圖」、「把背景換成 XX」等任何需要 AI 生成或修改圖像的情境時，請一定要使用此技能。優先使用 agent 內建生圖工具；沒有內建能力但本機有已登入、具內建生圖的 agent 命令列程式時，交由它代為生圖；都沒有時，執行本 Skill 同目錄的 draw.py 以 gpt-image-2 生圖，預設 quality low，存到當前專案的 output/。
 ---
 
 # 生圖
@@ -27,7 +27,7 @@ description: 生圖技能。當使用者要求「畫一張」、「生一張圖�
 2. 用自然語言請內建工具產圖。
 3. **回報完整絕對路徑**。圖片預設存在 agent 的暫存目錄
    （Codex：`~/.codex/generated_images/<工作識別碼>/`）。
-4. 專案要引用的圖片，複製到專案 `assets/` 或使用者指定位置，並回報新路徑
+4. 圖片複製到專案的 `output/` 或使用者指定位置，並回報新路徑
    —— **不要只留在暫存目錄**。
 
 ## 路線 C 流程（Codex CLI 代為生圖）
@@ -38,7 +38,7 @@ description: 生圖技能。當使用者要求「畫一張」、「生一張圖�
    - 獨立安裝的 CLI：`Get-Command codex`（macOS／Linux：`which codex`）
 2. **確認可用**：`& $cx login status` 要顯示 `Logged in using ChatGPT`；
    `& $cx features list` 裡 `image_generation` 要是 `true`。任一不符就回報現況，改問是否走路線 B。
-3. **執行**（在輸出資料夾跑，要求它把圖複製進來並回報路徑）：
+3. **執行**（在輸出資料夾跑，預設是專案的 `output/`，要求它把圖複製進來並回報路徑）：
 
    ```powershell
    & $cx exec --skip-git-repo-check --cd "<輸出資料夾>" --sandbox workspace-write "用內建生圖工具生成一張圖：<完整提示詞>。生成後把圖片複製到目前工作資料夾，檔名 <名稱>.png，最後只回報檔案的絕對路徑。"
@@ -78,7 +78,7 @@ uv run --with openai python "<本 Skill 目錄>/draw.py" "<完整提示詞>" --n
 `--outdir`（輸出目錄）、`--edit <圖片路徑>`（改圖）、`--mask <遮罩路徑>`（搭配 `--edit`）。
 
 輸出：`<name>_<YYYYMMDD_HHMMSS>.png`。
-預設位置：有 `slides/` → `slides/generated/`；否則 `generated/`；使用者指定則用 `--outdir`。
+預設位置：當前專案的 `output/`；使用者指定則用 `--outdir`。
 Key 讀取順序：shell 環境變數 → 當前目錄 `.env` → `~/.openai.env`。
 
 ## 品質等級

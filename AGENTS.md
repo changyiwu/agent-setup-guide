@@ -208,6 +208,7 @@ agent-setup-guide/
   （同名多路只留一份），`opencode debug agent build` 看實際生效的權限（沒有 `permission` 區塊時走內建的 `"*": allow`）
 - **repo 在雲端硬碟，`.git` 本身也跨機同步**：`.git/FETCH_HEAD` 的時間戳可能是別台留下的，
   開工時不可依它跳過 `git fetch`，一律實跑
+- **產出一律放 `output/`**：本專案產生的檔案或資料夾（成品、匯出、報表、生成圖、渲染等）預設放專案根目錄的 `output/`，不另開 `outputs/`、`exports/`、`generated/`、`out/` 之類的資料夾，方便找；`output/` 不進 git。部署工具指定的建置目錄（`dist/`、`build/`）不在此限
 
 ## Claude Code 專屬
 

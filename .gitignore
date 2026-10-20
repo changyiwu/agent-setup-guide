@@ -10,3 +10,6 @@ handoff.md
 
 # 實驗用的工作流程 JSON（含本機路徑與實測參數），不進 repo
 comfyui/
+
+# 產出一律放 output/，不進 git
+output/
