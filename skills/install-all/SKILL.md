@@ -1,5 +1,5 @@
 ---
-name: agent-install-all
+name: setup-all
 description: 一次安裝並執行全部九個懶人包技能（環境建置、Gemini Notebook、GitHub、Obsidian、Firebase、生圖、Cloudflare、ComfyUI、Blender）。說「全部安裝」「裝完所有懶人包」「一次安裝全部」時載入。
 ---
 
@@ -10,23 +10,23 @@ description: 一次安裝並執行全部九個懶人包技能（環境建置、G
 > 都要**逐項再確認**。不可把一次「全部安裝」擴張成登入或建立資源的授權。
 
 > 💡 只要完成基礎環境、暫時不處理 GitHub 帳號的話，**不要用「全部安裝」** ——
-> 只安裝並執行 `agent-env-setup` 即可。
+> 只安裝並執行 `setup-env` 即可。
 
 ## 九個項目
 
 | 編號 | 技能 | 內容 | 前置需求 |
 |------|------|------|---------|
-| 00 | `agent-env-setup` | Node.js LTS、uv、agent 本體與登入 | 無 |
-| 01 | `agent-gemini-notebook` | Gemini Notebook（原 NotebookLM）MCP | uv |
-| 02 | `agent-github` | Git、GitHub CLI 與登入 | 無 |
-| 03 | `agent-obsidian` | Obsidian vault 連接（MCPVault 或資料夾授權） | Node.js、vault |
-| 04 | `agent-firebase` | Firebase / Firestore MCP | Node.js、Google 帳號 |
-| 05 | `agent-draw` | 生圖（agent 內建或 OpenAI gpt-image-2） | uv、（路線 B）OpenAI API Key |
-| 06 | `agent-cloudflare` | Wrangler 登入、部署靜態網站到 Cloudflare Workers，可選加 D1 資料庫與 API | Node.js 20+、Cloudflare 帳號 |
-| 07 | `agent-comfyui` | 用 comfy-cli 操作本機 ComfyUI：改參數、送出、取回生成結果 | uv、已安裝的 ComfyUI、NVIDIA 顯卡 8GB 以上（Windows on ARM 未驗證） |
-| 08 | `agent-blender` | 用本機 Blender 與 bpy 建模、渲染及匯出 3D 場景 | uv、已安裝的 Blender 4.2 以上 |
+| 00 | `setup-env` | Node.js LTS、uv、agent 本體與登入 | 無 |
+| 01 | `setup-gemini-notebook` | Gemini Notebook（原 NotebookLM）MCP | uv |
+| 02 | `setup-github` | Git、GitHub CLI 與登入 | 無 |
+| 03 | `setup-obsidian` | Obsidian vault 連接（MCPVault 或資料夾授權） | Node.js、vault |
+| 04 | `setup-firebase` | Firebase / Firestore MCP | Node.js、Google 帳號 |
+| 05 | `draw` | 生圖（agent 內建或 OpenAI gpt-image-2） | uv、（路線 B）OpenAI API Key |
+| 06 | `setup-cloudflare` | Wrangler 登入、部署靜態網站到 Cloudflare Workers，可選加 D1 資料庫與 API | Node.js 20+、Cloudflare 帳號 |
+| 07 | `comfyui` | 用 comfy-cli 操作本機 ComfyUI：改參數、送出、取回生成結果 | uv、已安裝的 ComfyUI、NVIDIA 顯卡 8GB 以上（Windows on ARM 未驗證） |
+| 08 | `blender` | 用本機 Blender 與 bpy 建模、渲染及匯出 3D 場景 | uv、已安裝的 Blender 4.2 以上 |
 
-安裝後的名稱**四個 agent 相同**，就是上表的名稱。共用 `agent-` 前綴讓它們在全域目錄集中成一區。
+安裝後的名稱**四個 agent 相同**，就是上表的名稱。
 
 ## 步驟
 
@@ -42,7 +42,7 @@ description: 一次安裝並執行全部九個懶人包技能（環境建置、G
 
 4. **逐項確認是否要執行 00–08**。已安裝且驗證正常的外部工具可以跳過執行，
    但對應的 Skill 本身仍須保留在全域目錄。
-5. **驗收**：確認 `<全域技能目錄>/agent-<slug>/SKILL.md` 存在，
+5. **驗收**：確認 `<全域技能目錄>/<上表名稱>/SKILL.md` 存在，
    且 frontmatter `name` 與資料夾名稱一致。
    只看到 `02-github` 這種帶編號的資料夾視為命名錯誤，不得回報成功。
 

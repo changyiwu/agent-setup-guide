@@ -1,17 +1,17 @@
-# agents-lazy-guide（專案藍圖）
+# agent-setup-guide（專案藍圖）
 
 > 本檔為跨 Agent 通用的專案藍圖（AGENTS.md 開放標準）。任何 Agent 的每個 session 都應先讀本檔＋`handoff.md`。
 > Claude Code 預設只在沒有 `CLAUDE.md` 時才讀 `AGENTS.md`，故由 `CLAUDE.md` 的 `@AGENTS.md` import 本檔（`CLAUDE.md` 只有這一行）；Claude 專屬規範寫在本檔〈Claude Code 專屬〉一節。
 
 ## 專案簡介
 
-把原本四份各自維護的 AI Agent 懶人包（`claude-code-lazy-packs`、`codex-lazy-packs`、
-`opencode-lazy-packs`、`antigravity-lazy-pack`）合併成**一份通用版本**，同時適用
+把原本四份各自維護的 AI Agent 懶人包（`agent-setup-claude`、`agent-setup-codex`、
+`agent-setup-opencode`、`agent-setup-antigravity`）合併成**一份通用版本**，同時適用
 Claude Code / Codex / OpenCode / Antigravity 四個 agent，不用再維護四份。
 
 **核心設計**：內容只留一份，agent 差異全部集中在 `agents.json`，
-技能名稱**四個 agent 完全相同**，統一用 `agent-` 前綴（`agent-github`、`agent-obsidian`…）——
-關鍵是四家同名，OpenCode 多路掃描時才會自動去重；共用前綴則讓本專案技能在全域目錄集中成一區。
+技能名稱**四個 agent 完全相同**：連接／安裝類用 `setup-` 前綴（`setup-github`、`setup-obsidian`…），
+日常工具類不帶前綴（`draw`、`comfyui`、`blender`）——關鍵是四家同名，OpenCode 多路掃描時才會自動去重。
 `scripts/install.ps1` 依 `agents.json` 把同一份原始檔原樣裝到各 agent 的正確目錄，
 並驗證 frontmatter `name` 與資料夾名一致。
 
@@ -37,6 +37,7 @@ Claude Code / Codex / OpenCode / Antigravity 四個 agent，不用再維護四�
 - 2026-10-12：#07 補測 H3 動作參考三項——人物照＋灰模動作片可同時用（指定的人做指定的動作）；灰模片的**運鏡會跟且壓過文字**；動作句不提 `<Video 1>` 時參考片幾乎無效但照樣慢 3.5 倍（guide v0.16）
 - 2026-10-13：#07 測完 H3 動作參考剩下三項——同一句裡又照參考片又寫別的動作會兩邊各做一半（局部替換要指名哪一段）；手指會逐根照做，但人偶臉上的色塊五官會被貼到真人臉上，改成同色浮雕即可；10 秒照做、每步 3.2 倍（guide v0.17）
 - 2026-10-13：#07 H3 動作參考第四輪——同色浮雕臉換 seed 仍會被貼上五官，改成同材質挖凹陷（嘴、眼窩）兩個 seed 都沒貼且表情對時；多段參考影片可同時接但成本疊加，兩人同框一支片即可；參考片的音軌接了就被原樣搬進成品、提示詞不提也一樣（guide v0.18）
+- 2026-10-20：repo 由 `agents-lazy-guide` 改名 `agent-setup-guide`；技能安裝名改為 `setup-*`／`draw`／`comfyui`／`blender`，`agents.json` 改用每個 topic 的 `skillName`（取代 `prefix`）
 
 ## 目標與路線圖
 
@@ -45,29 +46,30 @@ Claude Code / Codex / OpenCode / Antigravity 四個 agent，不用再維護四�
 - [x] 階段三：搬移其餘五個主題（#00 環境建置、#01 Gemini Notebook、#03 Obsidian、#04 Firebase、#05 生圖）＋ install-all
 - [x] 階段四：**一次切換上線** —— 四個 agent 各裝 7 個技能，並清除舊 repo 留下的 24 個各自前綴技能
 - [x] 階段五：查證四家官方文件，確立命名規則（見「技能命名規則」）並回寫 `agents.json` 的 `skillDiscovery`
-- [x] 階段六：`antigravity-lazy-pack` 編號對齊其他三份（03 Obsidian／04 Firebase／05 生圖）
-- [x] 階段七：來源 `SKILL.md` 的 `name` 直接帶 `agent-` 前綴，`install.ps1` 停止改寫（相容 `sync-skills`）
+- [x] 階段六：`agent-setup-antigravity` 編號對齊其他三份（03 Obsidian／04 Firebase／05 生圖）
+- [x] 階段七：來源 `SKILL.md` 的 `name` 直接帶 `agent-` 前綴，`install.ps1` 停止改寫（相容 `skill-sync`）
 - [ ] 階段八：舊四個 repo 的 README 改成指向本 repo 的 stub（不刪除）
 - [ ] 階段九：實機驗證各主題流程（目前內容為文件整併，尚未逐項重跑實測）
 
 ## 技能命名規則（定案）
 
-安裝後的名稱是 **`agent-<slug>`，四個 agent 完全相同**。兩條規則不可違反：
+安裝名登記在 `agents.json` 每個 topic 的 **`skillName`**，**四個 agent 完全相同**。兩條規則不可違反：
 
-1. **前綴必須四家相同。** OpenCode 會同時掃描 `~/.claude/skills` 與 `~/.agents/skills`，
+1. **名稱必須四家相同。** OpenCode 會同時掃描 `~/.claude/skills` 與 `~/.agents/skills`，
    改成各自的 `claude-`／`codex-` 會讓同一主題在 OpenCode 出現三份；四家同名才會自動去重。
    實測：切換前載入 35 個技能、六主題佔 18 份；切換後 23 個、六主題各 1 份。
-2. **來源 `SKILL.md` 的 `name` 直接寫含前綴的安裝名**（`agent-github`）。
-   2026-08-03 從「安裝時加前綴」改為「來源就帶前綴」：`sync-skills` 以來源 frontmatter 的
-   `name` 決定安裝名並逐檔比對 hash，安裝時改寫會讓來源（`github`）與副本（`agent-github`）
-   對不起來而報錯。`install.ps1` 現在只**驗證** `name == <prefix><slug>`，不改寫、原樣複製。
+2. **來源 `SKILL.md` 的 `name` 直接寫安裝名**（`setup-github`）。
+   2026-08-03 從「安裝時加前綴」改為「來源就帶前綴」：`skill-sync` 以來源 frontmatter 的
+   `name` 決定安裝名並逐檔比對 hash，安裝時改寫會讓來源（`github`）與副本（`setup-github`）
+   對不起來而報錯。`install.ps1` 現在只**驗證** `name == skillName`，不改寫、原樣複製。
 
-選 `agent-` 而非完全不帶前綴，是為了讓本專案的技能在全域目錄按字母排序時集中成一區。
+2026-10-20 全 `agents/` 改名時，安裝名由統一的 `agent-<slug>` 改為：連接／安裝類 `setup-<slug>`（`setup-env`、`setup-all`）、
+日常工具類不帶前綴（`draw`、`comfyui`、`blender`）。名稱不再能由 slug 推出，所以 `agents.json` 改為每個 topic 各自寫 `skillName`。
 
 ## 資料夾結構
 
 ```
-agents-lazy-guide/
+agent-setup-guide/
 ├── .github/workflows/
 │   └── validate.yml     CI：每次 push 與 PR 用 Windows PowerShell 5.1 跑 validate.ps1
 ├── README.md            人看的索引
@@ -108,8 +110,8 @@ agents-lazy-guide/
 | 層級 | 平台 | 位置 | 讀取時機 |
 |------|------|------|---------|
 | L1 | 本地（GDrive） | `AGENTS.md`＋`handoff.md`＋`CLAUDE.md`（橋接） | 每個 session |
-| L2 | GitHub | [changyiwu/agents-lazy-guide](https://github.com/changyiwu/agents-lazy-guide)（**公開**） | 指定時 |
-| L3 | Obsidian | `agents-lazy-guide/專案工作流程.md` | 有需要時 |
+| L2 | GitHub | [changyiwu/agent-setup-guide](https://github.com/changyiwu/agent-setup-guide)（**公開**） | 指定時 |
+| L3 | Obsidian | `agent-setup-guide/專案工作流程.md` | 有需要時 |
 
 ## 四個 Agent 差異對照
 
@@ -133,27 +135,27 @@ agents-lazy-guide/
 - **不要為了某個 agent 開新檔案。** 差異依序考慮：能不能寫進 `agents.json` →
   能不能寫進該篇的「依你的 Agent」表格 → 才考慮在 `agents.json` 的 `notes` 說明。
   任何情況都不要建 `guides/02-連接-GitHub-codex.md` 這種檔案。
-- **`skills/*/SKILL.md` 的 frontmatter `name` 一律寫 `agent-<slug>`**（例如 `agent-github`），
+- **`skills/*/SKILL.md` 的 frontmatter `name` 一律等於 `agents.json` 該 topic 的 `skillName`**（例如 `setup-github`），
   與安裝後的資料夾名一致（OpenCode 硬性要求）。`install.ps1` 只驗證不改寫。
   description 也不要提到特定 agent 名稱。
-  **前綴必須四家相同** —— 改成各自的 `claude-`／`codex-` 會讓 OpenCode 同時看到三份同主題技能。
+  **名稱必須四家相同** —— 改成各自的 `claude-`／`codex-` 前綴會讓 OpenCode 同時看到三份同主題技能。
 - **根目錄不可出現 `SKILL.md`** —— `npx skills` 會把整個 repo 當成單一 Skill，
   導致 `skills/` 底下的項目列不出來。入口固定用 `INSTALL.md`。
 - **執行必需的指令與參數一律寫在 `SKILL.md` 本文**，不可只寫「見 guide」。安裝只複製 `skills/<slug>/`，
   技能在其他專案載入時讀不到 `guides/`；guide 只放背景、原因與常見問題。
 - **新增或修改主題後**，同步更新 `agents.json` 的 `topics`、`README.md`、`INSTALL.md` 三處清單。
 - 合併既有內容時**取聯集**，四份來源都要讀完再動筆，不要挑一份當基底。
-- 舊四個 repo 保留不刪（`claude-code-lazy-packs` 是公開 repo，刪除會斷他人連結）。
+- 舊四個 repo 保留不刪（`agent-setup-claude` 是公開 repo，刪除會斷他人連結）。
 - 本專案改編自原作者三師爸的 `claude-code-lazy-packs`（MIT），**致謝須保留於 README.md**。
-- **`agents.json` 的 `prefix` 與來源 `name` 必須一致**，否則 `install.ps1` 會擋下。要改前綴得**同時改兩處**，並清掉舊名稱的孤兒資料夾——名稱不同不會互相覆蓋，舊的會留在原地。
+- **`agents.json` 的 `skillName` 與來源 `name` 必須一致**，否則 `install.ps1` 會擋下。要改名得**同時改兩處**，並清掉舊名稱的孤兒資料夾——名稱不同不會互相覆蓋，舊的會留在原地。
 - **涉及對外發布的步驟，必須有使用者涵蓋本次發布的明確授權。** #06 Cloudflare 可在授權後由 agent 執行 `wrangler deploy`，或推送會觸發自動部署的 production branch；OAuth 登入仍由使用者操作。其他主題維持原本的手動要求。
 - **需要瀏覽器 OAuth 的登入一律標 🖐️ 手動**（`wrangler login`、`gh auth login`、`firebase login`…）。四家 agent 的內建執行環境都不是互動式終端，agent 代跑會卡住；也不得改用「請把 token 貼給我」的替代做法。
-- **技能目錄會被其他 session 或 `sync-skills` 同時改動**。要回報目錄狀態就**當場重列一次**，不要引用記憶或 `handoff.md` 的舊紀錄。
+- **技能目錄會被其他 session 或 `skill-sync` 同時改動**。要回報目錄狀態就**當場重列一次**，不要引用記憶或 `handoff.md` 的舊紀錄。
 - **#04 Firebase 的預設是「完全不碰線上安全規則」**（採 Claude 版最新做法）；Codex 舊版的規則部署流程已降級為需明確同意的進階章節。改動這段前先確認這個取捨還成立。
 - **#07 ComfyUI 一律走官方 `comfy-cli`，不走 MCP，也不執行 `comfy skills install`**（它會寫入 `~/.claude/` 與家目錄的 `AGENTS.md`，繞過本 repo 的安裝規則）。需要官方深入資料時用 `comfy skills show` 臨時讀。改動這段前先確認這個取捨還成立。
 - **#07 的模型專屬內容（版本選擇、欄位地址、提示詞要點、實測數據）寫在 `skills/07-comfyui/models/<模型>.md`**，
   `SKILL.md` 只留通用流程與〈模型筆記〉索引表。新增模型就新增一份筆記並補進索引表，不要再寫進 `SKILL.md` 本文。
-  筆記隨技能安裝（`install.ps1`、`sync-skills` 都遞迴複製），可以放執行必需的內容；給人看的原因與量測方式仍放 guide。
+  筆記隨技能安裝（`install.ps1`、`skill-sync` 都遞迴複製），可以放執行必需的內容；給人看的原因與量測方式仍放 guide。
   這是 `TEMPLATE.md`〈附屬檔〉通則的一例（#06 的 `references/` 同理）。
 - **#08 Blender 使用已安裝的 Blender 執行檔＋`bpy`**，不以 `pip install bpy` 取代。即時查看、參考圖對形與
   多輪微調走 Blender Lab 官方 MCP；一次性、批次與 CI 走背景 runner。MCP 只綁 `localhost:9876`，安裝／啟用前
@@ -195,7 +197,7 @@ agents-lazy-guide/
   好讓沒裝 PowerShell 7 的電腦也能直接跑；但 Windows PowerShell 5.1 讀「無 BOM 的 UTF-8」
   會當成 ANSI，檔內中文全部亂碼、解析階段就失敗。用編輯器另存時要確認 BOM 沒被拿掉
 - **全域技能目錄不在雲端硬碟，每台電腦都要各自跑一次安裝。** 換電腦接手時先確認
-  `~/.claude/skills` 等四個目錄裝的是 `agent-*` 還是舊前綴，不要以 `handoff.md` 的記錄為準
+  `~/.claude/skills` 等四個目錄裝的是現行名稱（`setup-*`、`draw`…）還是舊名（`agent-*`），不要以 `handoff.md` 的記錄為準
 - **用指令測其他 agent 的技能行為時，一律在空資料夾跑，並要求回報讀到的檔案路徑**（才分得出讀的是技能副本還是 repo 原始檔）。
   Codex 用 App 附帶的 `~/.codex/.sandbox-bin/codex.exe exec --skip-git-repo-check --ephemeral -s read-only`，
   預設模型不被支援就加 `-m` 指定，不改使用者設定；OpenCode 的 `opencode run` 會自動拒絕權限為 ask 的技能，

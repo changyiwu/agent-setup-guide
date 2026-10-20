@@ -1,5 +1,5 @@
 ---
-name: agent-blender
+name: blender
 description: 用本機 Blender 與 bpy 建立、修改、即時迭代、渲染及匯出 3D 場景。使用者提到 Blender、3D 建模、修改 blend 檔、程序化模型、參考圖造型比對或渲染預覽時載入。
 ---
 

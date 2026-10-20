@@ -1,5 +1,5 @@
 ---
-name: agent-cloudflare
+name: setup-cloudflare
 description: 連接 Cloudflare，讓 agent 能用 Wrangler 建置並部署靜態網站到 Workers，並可選擇加上 D1 資料庫與 API。說「連接 Cloudflare」「部署到 Cloudflare」「把網站放上 Cloudflare」「建立 D1 資料庫」「網站要接資料庫」時載入。
 ---
 

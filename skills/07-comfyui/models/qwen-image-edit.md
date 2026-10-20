@@ -1,6 +1,6 @@
 # Qwen Image Edit 2511（照指令改圖）
 
-本檔隨 `agent-comfyui` 安裝，由 `SKILL.md`〈模型筆記〉指向。原因與實例見 `guides/07-連接-ComfyUI.md` 步驟九〈多段影片〉。
+本檔隨 `comfyui` 安裝，由 `SKILL.md`〈模型筆記〉指向。原因與實例見 `guides/07-連接-ComfyUI.md` 步驟九〈多段影片〉。
 
 給一張圖＋一句中文指令，改掉指定的部分、其餘保持原樣。在影片工作裡拿來做 **H3 Ref2VA 的參考圖**：
 把真人生活照換裝成**定妝照**、把影片畫格裡的人移掉做成**場景版**（用法見 `models/minimax-h3.md`〈Ref2VA〉）。

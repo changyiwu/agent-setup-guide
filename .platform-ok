@@ -1,4 +1,4 @@
-# 刻意保留平台專屬寫法的檔案，由 cross-device-agent-skills/tools/check-platform.py 讀取。
+# 刻意保留平台專屬寫法的檔案，由 agent-project-flow/tools/check-platform.py 讀取。
 # 列在這裡的檔案整份跳過檢查（含 BOM），加進來之前先確認是「設計如此」不是「還沒改」。
 
 # 目標讀者是照著懶人包一步步做的初學者，他們的 Windows 預設只有 PowerShell 5.1（沒有 pwsh 7），

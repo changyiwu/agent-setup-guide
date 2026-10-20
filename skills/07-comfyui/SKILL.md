@@ -1,5 +1,5 @@
 ---
-name: agent-comfyui
+name: comfyui
 description: 用官方 comfy-cli 操作本機 ComfyUI：套用範本或使用者自己的工作流程、改提示詞與參數、送出並取回生成的圖片（音樂、影片同一套流程）。使用者提到 ComfyUI，或說「連接 ComfyUI」「用 ComfyUI 生圖」「跑 ComfyUI 工作流程」時載入。
 ---
 
@@ -12,7 +12,7 @@ description: 用官方 comfy-cli 操作本機 ComfyUI：套用範本或使用者
 
 - **走官方 `comfy-cli`，不走 MCP。** 四個 agent 都在 shell 跑同一套指令，不必各自設定 MCP；
   官方的本機 MCP（`comfy-mcp`）本身也依賴它。指令一律加 `--json`，看回傳的 `ok` 與 `error.hint`。
-- 使用者**沒提到 ComfyUI** 的一般生圖需求，交給 `agent-draw`，不要搶用本技能。
+- 使用者**沒提到 ComfyUI** 的一般生圖需求，交給 `draw`，不要搶用本技能。
 - comfy-cli 自帶一套官方技能，**不安裝**。遇到本檔沒寫的情境，用 `comfy skills show comfy`
   （只印出、不寫入任何檔案）臨時查閱。
 

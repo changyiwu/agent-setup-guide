@@ -1,6 +1,6 @@
 # MiniMax Music 3（音樂）
 
-本檔隨 `agent-comfyui` 安裝，由 `SKILL.md`〈模型筆記〉指向。完整說明見 `guides/07-連接-ComfyUI.md` 步驟九。
+本檔隨 `comfyui` 安裝，由 `SKILL.md`〈模型筆記〉指向。完整說明見 `guides/07-連接-ComfyUI.md` 步驟九。
 
 範本 `audio_minimax_music_3`：由風格描述與歌詞生成含人聲的完整歌曲，最長約 5 分鐘。
 

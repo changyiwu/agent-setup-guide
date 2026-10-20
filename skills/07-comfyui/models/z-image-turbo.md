@@ -1,6 +1,6 @@
 # Z-Image Turbo（生圖）
 
-本檔隨 `agent-comfyui` 安裝，由 `SKILL.md`〈模型筆記〉指向。原因與實例見 `guides/07-連接-ComfyUI.md` 步驟四、步驟六。
+本檔隨 `comfyui` 安裝，由 `SKILL.md`〈模型筆記〉指向。原因與實例見 `guides/07-連接-ComfyUI.md` 步驟四、步驟六。
 
 ## 依 VRAM 選範本
 

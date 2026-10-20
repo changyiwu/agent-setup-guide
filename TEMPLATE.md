@@ -20,21 +20,21 @@ tags:
 |------|------|
 | **slug** | 主題的英文短代號，只用**小寫英數與連字號**（`github`、`env-setup`、`gemini-notebook`）。定義在 `agents.json` 的 `topics[].slug`，是整個 repo 的名稱本體。 |
 | **編號** | 兩位數的章節序號（`00`–`05`），只用來維持教學順序與 `guides/` ↔ `skills/` 的對應。**不是名稱的一部分**，不會出現在安裝結果裡。 |
-| **prefix（前綴）** | 加在 slug 前面的字串，定義在 `agents.json` 每個 agent 的 `prefix`。目前四家統一為 `agent-`。`install.ps1` 只拿它**驗證**來源 name，不再改寫。 |
-| **安裝名** | 技能裝到全域目錄後的資料夾名，也是來源 frontmatter 的 `name`。等於 `<prefix><slug>`。 |
+| **skillName（安裝名）** | 定義在 `agents.json` 每個 topic 的 `skillName`，四家共用同一個。連接／安裝類用 `setup-<slug>`，日常工具類直接用 slug（`draw`）。`install.ps1` 只拿它**驗證**來源 name，不改寫。 |
+| **安裝名** | 技能裝到全域目錄後的資料夾名，也是來源 frontmatter 的 `name`。等於該 topic 的 `skillName`。 |
 
 同一個主題在不同位置的長相（以 GitHub 為例）：
 
 ```
 agents.json     "slug": "github"        ← 本體
 來源資料夾      skills/02-github/        ← 編號 + slug
-來源 name       name: agent-github       ← prefix + slug，直接寫在來源
-安裝後          agent-github             ← 與來源 name 相同（原樣複製）
+來源 name       name: setup-github       ← agents.json 的 skillName，直接寫在來源
+安裝後          setup-github             ← 與來源 name 相同（原樣複製）
 ```
 
 > **為什麼 slug 只能用小寫英數與連字號**：這不是本專案的偏好，是工具的硬性要求。
 > OpenCode 明文規定技能 `name` 為 1–64 字元的小寫英數與連字號，其他三家也相容此格式。
-> 中文、空格、底線都不行。`sync-skills` 技能的步驟 1 會用
+> 中文、空格、底線都不行。`skill-sync` 技能的步驟 1 會用
 > `^[A-Za-z0-9._-]+$` 檢查並在不合格時停下來問人。
 
 ---
@@ -110,24 +110,23 @@ tags:
 
 ```yaml
 ---
-name: agent-<slug>    # ★ 直接寫含前綴的安裝名，四家同名
+name: <skillName>    # ★ 直接寫安裝名（agents.json 的 skillName），四家同名
 description: <觸發語句>。說「XXX」時載入。
 ---
 ```
 
-> `name` 直接寫**含 `agent-` 前綴**的安裝名（`agent-github`），**不要**寫成 `claude-github`
-> 這種各自前綴。`install.ps1` 只驗證它等於 `agents.json` 的 `<prefix><slug>`，
+> `name` 直接寫安裝名（`setup-github`），**不要**寫成 `claude-github`
+> 這種各自前綴。`install.ps1` 只驗證它等於 `agents.json` 的 `skillName`，
 > 不一致就報錯並要求改來源；安裝時是**原樣複製**，不改寫任何內容。
 >
-> **為什麼不靠安裝時改寫**：`sync-skills` 以來源 frontmatter 的 `name` 決定安裝名，
-> 並逐檔比對 hash 證明副本一致。若前綴由安裝時加上，來源叫 `github`、副本叫 `agent-github`，
-> 兩邊 name 與內容都對不起來，`sync-skills` 會報錯。
+> **為什麼不靠安裝時改寫**：`skill-sync` 以來源 frontmatter 的 `name` 決定安裝名，
+> 並逐檔比對 hash 證明副本一致。若名稱由安裝時改寫，來源叫 `github`、副本叫 `setup-github`，
+> 兩邊 name 與內容都對不起來，`skill-sync` 會報錯。
 >
 > description 也不要提到特定 agent 名稱。
 >
-> **前綴四家必須相同**：OpenCode 會同時掃描 `~/.claude/skills` 與 `~/.agents/skills`，
+> **名稱四家必須相同**：OpenCode 會同時掃描 `~/.claude/skills` 與 `~/.agents/skills`，
 > 用**各自**的前綴會讓同一主題出現三份不同名的技能；四家同名才會被自動去重。
-> 選 `agent-` 而非完全不帶，是為了讓本專案技能在全域目錄集中成一區。
 > 詳見 `agents.json` 的 `skillDiscovery` 與 `repoRules.whySharedPrefix`。
 
 ### 必備區塊
@@ -171,7 +170,7 @@ description: <觸發語句>。說「XXX」時載入。
 規則：
 
 - **`SKILL.md` 要有一張索引表，寫明「什麼情況讀哪個檔」**，並在走到那個分支的步驟裡再點名一次。路徑一律相對於技能資料夾。
-- **附屬檔隨技能安裝**（`install.ps1` 與 `sync-skills` 都遞迴複製整個技能資料夾），所以**可以放執行必需的指令**，
+- **附屬檔隨技能安裝**（`install.ps1` 與 `skill-sync` 都遞迴複製整個技能資料夾），所以**可以放執行必需的指令**，
   不違反「不可只寫見 guide」。給人看的原因、背景、踩坑故事仍放 `guides/`。
 - **安全規則與同意點不可只寫在附屬檔。** 附屬檔裡的 ⚠️、🖐️ 子步驟照寫；`SKILL.md` 的〈安全規則〉保留總則，
   走到分支的那一步也要點出同意點——agent 可能還沒讀附屬檔就被要求動手。
@@ -252,7 +251,7 @@ Windows / macOS / Linux 用明確標題區分，或在步驟零要求 agent 判�
 ## 新增一個主題的檢查清單
 
 - [ ] `guides/<編號>-<標題>.md` 已建立，區塊齊全
-- [ ] `skills/<編號>-<slug>/SKILL.md` 已建立，`name` 為 `agent-<slug>`
+- [ ] `skills/<編號>-<slug>/SKILL.md` 已建立，`name` 等於 `agents.json` 的 `skillName`
 - [ ] `agents.json` 的 `topics` 已加入該主題，`status` 正確
 - [ ] `README.md` 與 `INSTALL.md` 的清單已更新
 - [ ] `scripts/install.ps1 -Agent all -ListOnly` 看得到該主題

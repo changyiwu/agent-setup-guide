@@ -1,6 +1,6 @@
 # 自動部署路線 B：GitHub Actions
 
-本檔隨 `agent-cloudflare` 安裝，由 `SKILL.md` 步驟 10 指向。**使用者選了路線 B，或要從 B 換回 A 時才讀。**
+本檔隨 `setup-cloudflare` 安裝，由 `SKILL.md` 步驟 10 指向。**使用者選了路線 B，或要從 B 換回 A 時才讀。**
 兩條路線的取捨表在 `SKILL.md`；踩坑背景見 `guides/06-連接-Cloudflare.md` 步驟九。
 
 **與路線 A 不可並存**——同時接會讓每次 push 觸發兩次部署、互相覆蓋。

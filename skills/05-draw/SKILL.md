@@ -1,5 +1,5 @@
 ---
-name: agent-draw
+name: draw
 description: 生圖技能。當使用者要求「畫一張」、「生一張圖」、「做一張圖」、「產生圖片」、「畫個封面」、「畫插圖」、「畫示意圖」、「畫分鏡」，或要「改這張圖」、「把背景換成 XX」等任何需要 AI 生成或修改圖像的情境時，請一定要使用此技能。優先使用 agent 內建生圖工具；沒有內建能力但本機有已登入、具內建生圖的 agent 命令列程式時，交由它代為生圖；都沒有時，執行本 Skill 同目錄的 draw.py 以 gpt-image-2 生圖，預設 quality low，存到當前專案的 slides/generated/（無則 generated/）。
 ---
 
@@ -67,9 +67,9 @@ uv run --with openai python "<本 Skill 目錄>/draw.py" "<完整提示詞>" --n
 
 沒有 uv 時先 `pip install openai`（macOS/Linux 加 `--break-system-packages`），改用 `python` 直接執行。
 
-各 agent 的安裝位置（名稱都是 `agent-draw`）：`~/.claude/skills/agent-draw/`、
-`~/.agents/skills/agent-draw/`、`~/.config/opencode/skills/agent-draw/`、
-`~/.gemini/config/skills/agent-draw/`。
+各 agent 的安裝位置（名稱都是 `draw`）：`~/.claude/skills/draw/`、
+`~/.agents/skills/draw/`、`~/.config/opencode/skills/draw/`、
+`~/.gemini/config/skills/draw/`。
 
 ### 參數
 

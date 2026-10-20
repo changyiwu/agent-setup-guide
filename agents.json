@@ -8,8 +8,8 @@
     "note": "各 agent 實際會掃描的全域技能目錄（依官方文件）。只有 OpenCode 是多路掃描：它同時讀 ~/.claude/skills 與 ~/.agents/skills，所以裝給其他 agent 的副本它也看得到。因為本 repo 四份同名，OpenCode 會自動去重成一份（見 dedup）。",
     "dedup": {
       "finding": "OpenCode 對同名技能自動去重（first-match-wins）。四個目錄同名只會載入一份。",
-      "evidence": "2026-08-02 於 PC-YI-FY 實測 opencode 1.17.11：四個技能目錄共 64 個資料夾，opencode debug skill 只載入 35 個技能，且 35 個名稱全不重複；file-toolkit、rdq、sync-skills、startup 這類四處同名的技能各只出現 1 次。",
-      "implication": "重複是「各自前綴」造成的，不是多路掃描造成的。改為四家同名後，六個主題在 OpenCode 從 18 份收斂為 6 份（實測：載入數 35 → 23）。共用前綴 agent- 不影響去重，因為四家仍然同名。"
+      "evidence": "2026-08-02 於 PC-YI-FY 實測 opencode 1.17.11：四個技能目錄共 64 個資料夾，opencode debug skill 只載入 35 個技能，且 35 個名稱全不重複；file-toolkit、rdq、skill-sync、startup 這類四處同名的技能各只出現 1 次。",
+      "implication": "重複是「各自前綴」造成的，不是多路掃描造成的。改為四家同名後，六個主題在 OpenCode 從 18 份收斂為 6 份（實測：載入數 35 → 23）。名稱帶不帶前綴不影響去重，只要四家同名。"
     },
     "openCodeEnvVars": {
       "note": "OpenCode 有環境變數可關閉 Claude Code 相容路徑，但沒有任何開關能關閉 ~/.agents/skills（issue #15396 仍未實作）。改為四家同名後這些變數都不需要設。",
@@ -50,14 +50,15 @@
   "repoRules": {
     "entryFile": "INSTALL.md",
     "whyNotSkillMd": "根目錄若存在 SKILL.md，npx skills 會把整個 repo 視為單一 Skill，導致 skills/ 底下的項目無法被列出。入口因此固定使用 INSTALL.md。",
-    "sourceSkillName": "skills/<編號-slug>/SKILL.md 的 frontmatter name 一律寫含前綴的安裝名（例如 agent-github）。install.ps1 原樣複製、不改寫內容，只驗證 name == <prefix><slug>，不一致就報錯要求改來源。2026-08-03 從「安裝時加前綴」改成「來源就帶前綴」，因為 sync-skills 以來源 frontmatter 的 name 決定安裝名並逐檔比對 hash，安裝時改寫會讓來源（github）與副本（agent-github）對不起來而報錯。",
-    "whySharedPrefix": "前綴必須「四家相同」，不能「每家不同」。2026-08-02 先移除各自前綴（claude-／codex-／opencode-／antigravity-），因為 OpenCode 多路掃描會讓同一主題出現三個不同名字、無法去重；同日再改為四家共用的 agent-，原因是純中性名稱（github、draw）在全域目錄裡按字母排序會散落各處不易判讀，且泛用名較容易誤觸發。agent- 同時滿足兩者：四家同名所以 OpenCode 仍會去重，共用前綴又讓本專案的技能在清單裡集中成一區。"
+    "sourceSkillName": "skills/<編號-slug>/SKILL.md 的 frontmatter name 一律寫安裝名，也就是該 topic 的 skillName（例如 setup-github）。install.ps1 原樣複製、不改寫內容，只驗證 name == skillName，不一致就報錯要求改來源。2026-08-03 從「安裝時加前綴」改成「來源就帶前綴」，因為 skill-sync 以來源 frontmatter 的 name 決定安裝名並逐檔比對 hash，安裝時改寫會讓來源（github）與副本（setup-github）對不起來而報錯。",
+    "whySharedPrefix": "前綴必須「四家相同」，不能「每家不同」。2026-08-02 先移除各自前綴（claude-／codex-／opencode-／antigravity-），因為 OpenCode 多路掃描會讓同一主題出現三個不同名字、無法去重；同日再改為四家共用的 agent-，原因是純中性名稱（github、draw）在全域目錄裡按字母排序會散落各處不易判讀，且泛用名較容易誤觸發。agent- 同時滿足兩者：四家同名所以 OpenCode 仍會去重，共用前綴又讓本專案的技能在清單裡集中成一區。2026-10-20 全 agents/ 改名時改為：連接／安裝類 setup-<slug>，日常工具類（draw、comfyui、blender）不帶前綴；名稱不再能由 slug 推出，改由每個 topic 的 skillName 登記。"
   },
 
   "topics": [
     {
       "no": "00",
       "slug": "env-setup",
+      "skillName": "setup-env",
       "title": "環境建置",
       "guide": "guides/00-環境建置.md",
       "skillDir": "skills/00-env-setup",
@@ -66,6 +67,7 @@
     {
       "no": "01",
       "slug": "gemini-notebook",
+      "skillName": "setup-gemini-notebook",
       "title": "連接 Gemini Notebook",
       "guide": "guides/01-連接-Gemini-Notebook.md",
       "skillDir": "skills/01-gemini-notebook",
@@ -74,6 +76,7 @@
     {
       "no": "02",
       "slug": "github",
+      "skillName": "setup-github",
       "title": "連接 GitHub",
       "guide": "guides/02-連接-GitHub.md",
       "skillDir": "skills/02-github",
@@ -82,6 +85,7 @@
     {
       "no": "03",
       "slug": "obsidian",
+      "skillName": "setup-obsidian",
       "title": "連接 Obsidian 第二大腦",
       "guide": "guides/03-連接-Obsidian.md",
       "skillDir": "skills/03-obsidian",
@@ -90,6 +94,7 @@
     {
       "no": "04",
       "slug": "firebase",
+      "skillName": "setup-firebase",
       "title": "連接 Firebase 資料庫",
       "guide": "guides/04-連接-Firebase.md",
       "skillDir": "skills/04-firebase",
@@ -98,6 +103,7 @@
     {
       "no": "05",
       "slug": "draw",
+      "skillName": "draw",
       "title": "生圖",
       "guide": "guides/05-生圖.md",
       "skillDir": "skills/05-draw",
@@ -106,6 +112,7 @@
     {
       "no": "06",
       "slug": "cloudflare",
+      "skillName": "setup-cloudflare",
       "title": "連接 Cloudflare",
       "guide": "guides/06-連接-Cloudflare.md",
       "skillDir": "skills/06-cloudflare",
@@ -114,6 +121,7 @@
     {
       "no": "07",
       "slug": "comfyui",
+      "skillName": "comfyui",
       "title": "連接 ComfyUI",
       "guide": "guides/07-連接-ComfyUI.md",
       "skillDir": "skills/07-comfyui",
@@ -122,6 +130,7 @@
     {
       "no": "08",
       "slug": "blender",
+      "skillName": "blender",
       "title": "連接 Blender 做 3D 建模",
       "guide": "guides/08-連接-Blender.md",
       "skillDir": "skills/08-blender",
@@ -130,6 +139,7 @@
     {
       "no": "--",
       "slug": "install-all",
+      "skillName": "setup-all",
       "title": "一次安裝全部",
       "guide": null,
       "skillDir": "skills/install-all",
@@ -142,7 +152,6 @@
       "displayName": "Claude Code",
       "detectDir": "~/.claude",
       "skillsDir": "~/.claude/skills",
-      "prefix": "agent-",
       "nativeInstall": "npx skills add . --skill <skill> -g -y",
       "notes": [
         "所有操作預設在 Claude Code 桌面版的 Code 分頁內完成，使用者不需另開 PowerShell。",
@@ -153,7 +162,6 @@
       "displayName": "Codex",
       "detectDir": "~/.agents",
       "skillsDir": "~/.agents/skills",
-      "prefix": "agent-",
       "nativeInstall": "npx skills add . --skill <skill> --full-depth --agent codex -g -y",
       "notes": [
         "只使用本地 repo 當安裝來源，不得改用 GitHub URL 或內建 skill-installer 的 GitHub helper。",
@@ -165,7 +173,6 @@
       "displayName": "OpenCode",
       "detectDir": "~/.config/opencode",
       "skillsDir": "~/.config/opencode/skills",
-      "prefix": "agent-",
       "nativeInstall": "npx skills add . --skill <skill> --agent opencode --global --copy --yes",
       "notes": [
         "舊 repo 的 npx 來源指向 mathruffian-dot/opencode-lazy-packs（原作者），合併後已改為本地 repo。",
@@ -178,7 +185,6 @@
       "productNote": "本 repo 的 Antigravity 一律指 Antigravity 2.0 桌面 App（獨立的 agent 應用），不是程式編輯器／IDE。文件中不得再以「IDE」稱呼它；設定與技能都在 ~/.gemini/config/（mcp_config.json、skills/）。",
       "detectDir": "~/.gemini",
       "skillsDir": "~/.gemini/config/skills",
-      "prefix": "agent-",
       "nativeInstall": "scripts/install-skills.ps1 -Skill <skill>",
       "notes": [
         "舊 repo 已於 2026-08-02 重新編號對齊（03 Obsidian / 04 Firebase / 05 生圖），仍無 00 環境建置（App 本體與登入由 App 自行處理）。",
@@ -193,18 +199,19 @@
     "history": [
       "六個主題全部搬移完成前不安裝，避免「02 是合併版、其他五個是舊版」的混用期。",
       "2026-08-02 一次切換：安裝 7 技能 × 4 agent，並移除舊 repo 留下的 24 個各自前綴技能（claude-*／codex-*／opencode-*／antigravity-*）。",
-      "2026-08-02 再把安裝名加上共用前綴 agent-，讓本專案技能在全域目錄裡集中成一區。"
+      "2026-08-02 再把安裝名加上共用前綴 agent-，讓本專案技能在全域目錄裡集中成一區。",
+      "2026-10-20 安裝名改為 setup-*／draw／comfyui／blender，agents.json 由 agents 的 prefix 改為 topics 的 skillName。"
     ],
     "reinstall": "scripts/install.ps1 -Agent all（更新既有安裝加 -Force）"
   },
 
   "legacyRepos": {
-    "note": "舊 repo 不刪除，README 改為指向本 repo 的 stub。claude-code-lazy-packs 為公開 repo，直接刪除會斷他人連結。",
+    "note": "舊 repo 不刪除，README 改為指向本 repo 的 stub。agent-setup-claude 為公開 repo，直接刪除會斷他人連結。",
     "paths": [
-      "../claude-code-lazy-packs",
-      "../codex-lazy-packs",
-      "../opencode-lazy-packs",
-      "../antigravity-lazy-pack"
+      "../agent-setup-claude",
+      "../agent-setup-codex",
+      "../agent-setup-opencode",
+      "../agent-setup-antigravity"
     ],
     "attribution": "本專案改編自原作者三師爸的 claude-code-lazy-packs（MIT）。致謝須保留於 README.md。"
   }

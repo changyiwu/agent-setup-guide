@@ -20,7 +20,7 @@
 
 > **Antigravity 指 Antigravity 2.0 桌面 App**（獨立的 agent 應用），不是程式編輯器／IDE。
 
-技能名稱**四個 agent 完全相同**，統一用 `agent-` 前綴（`agent-github`、`agent-obsidian`…）。
+技能名稱**四個 agent 完全相同**：連接／安裝類用 `setup-` 前綴（`setup-github`、`setup-obsidian`…），日常工具類不帶前綴（`draw`、`comfyui`、`blender`）。
 
 **目錄不存在＝這台電腦沒裝那個工具**，略過即可，不要建目錄、不要當成錯誤。
 
@@ -32,21 +32,21 @@
 
 | 編號 | 來源資料夾 | 安裝後名稱 | 說明 | 前置需求 |
 |------|-----------|-----------|------|---------|
-| 00 | `skills/00-env-setup` | `agent-env-setup` | Node.js LTS、uv、agent 本體與登入 | 無 |
-| 01 | `skills/01-gemini-notebook` | `agent-gemini-notebook` | Gemini Notebook（原 NotebookLM）MCP | uv |
-| 02 | `skills/02-github` | `agent-github` | Git、GitHub CLI 與登入 | 無 |
-| 03 | `skills/03-obsidian` | `agent-obsidian` | Obsidian vault 連接 | Node.js、vault |
-| 04 | `skills/04-firebase` | `agent-firebase` | Firebase / Firestore MCP | Node.js、Google 帳號 |
-| 05 | `skills/05-draw` | `agent-draw` | 生圖（內建或 gpt-image-2），含 `draw.py` | uv |
-| 06 | `skills/06-cloudflare` | `agent-cloudflare` | Wrangler 登入、部署靜態網站到 Workers，可選加 D1 資料庫與 API | Node.js 20+、Cloudflare 帳號 |
-| 07 | `skills/07-comfyui` | `agent-comfyui` | 用 comfy-cli 操作本機 ComfyUI：改參數、送出、取回生成結果 | uv、已安裝的 ComfyUI、NVIDIA 顯卡 8GB 以上 |
-| 08 | `skills/08-blender` | `agent-blender` | 用 Blender Lab 官方 MCP 即時建模，並以 bpy runner 批次重現 | uv、已安裝的 Blender 5.1 以上 |
-| — | `skills/install-all` | `agent-install-all` | 一次安裝全部 | 無 |
+| 00 | `skills/00-env-setup` | `setup-env` | Node.js LTS、uv、agent 本體與登入 | 無 |
+| 01 | `skills/01-gemini-notebook` | `setup-gemini-notebook` | Gemini Notebook（原 NotebookLM）MCP | uv |
+| 02 | `skills/02-github` | `setup-github` | Git、GitHub CLI 與登入 | 無 |
+| 03 | `skills/03-obsidian` | `setup-obsidian` | Obsidian vault 連接 | Node.js、vault |
+| 04 | `skills/04-firebase` | `setup-firebase` | Firebase / Firestore MCP | Node.js、Google 帳號 |
+| 05 | `skills/05-draw` | `draw` | 生圖（內建或 gpt-image-2），含 `draw.py` | uv |
+| 06 | `skills/06-cloudflare` | `setup-cloudflare` | Wrangler 登入、部署靜態網站到 Workers，可選加 D1 資料庫與 API | Node.js 20+、Cloudflare 帳號 |
+| 07 | `skills/07-comfyui` | `comfyui` | 用 comfy-cli 操作本機 ComfyUI：改參數、送出、取回生成結果 | uv、已安裝的 ComfyUI、NVIDIA 顯卡 8GB 以上 |
+| 08 | `skills/08-blender` | `blender` | 用 Blender Lab 官方 MCP 即時建模，並以 bpy runner 批次重現 | uv、已安裝的 Blender 5.1 以上 |
+| — | `skills/install-all` | `setup-all` | 一次安裝全部 | 無 |
 
-以 Claude Code 為例，02 安裝後就是 `~/.claude/skills/agent-github/SKILL.md`。
+以 Claude Code 為例，02 安裝後就是 `~/.claude/skills/setup-github/SKILL.md`。
 
-> 來源的 `SKILL.md` 裡 `name` 就是含前綴的安裝名（`agent-github`）。
-> `install.ps1` 原樣複製、不改寫，只驗證 `name` 等於 `agents.json` 的 `<prefix><slug>`。
+> 來源的 `SKILL.md` 裡 `name` 就是安裝名（`setup-github`）。
+> `install.ps1` 原樣複製、不改寫，只驗證 `name` 等於 `agents.json` 的 `skillName`。
 
 ---
 
@@ -87,7 +87,7 @@ powershell -ExecutionPolicy Bypass -File "scripts/install.ps1" -Agent all -ListO
 
 更新已存在的項目要加 `-Force`（預設不覆蓋，只回報「已存在」）。
 
-### 為什麼前綴是 `agent-`，四家都一樣
+### 為什麼四家名稱都一樣
 
 關鍵是**四家用同一個名字**，而不是「有沒有前綴」。
 
@@ -97,22 +97,21 @@ Claude Code 與 Codex 的副本它也看得到。若像舊 repo 那樣用**各�
 會在 OpenCode 裡同時出現三份、全部命中「連接 GitHub」。
 **四家同名之後，OpenCode 會自動去重成一份**（first-match-wins）。
 
-至於為什麼不乾脆完全不帶前綴：純 slug（`github`、`draw`）在全域技能目錄裡
-按字母排序會散落各處，本專案的技能看不出是一組；而且泛用名比較容易誤觸發。
-共用前綴 `agent-` 讓它們集中成一區，又不影響去重。
+連接／安裝類加 `setup-`，是因為純 slug（`github`、`firebase`）太泛用、容易誤觸發；
+`draw`、`comfyui`、`blender` 是日常工具，名稱本身就夠明確，所以不帶前綴。
 
 > 實測（2026-08-02，opencode 1.17.11）：四個技能目錄共 64 個資料夾，
 > OpenCode 只載入 35 個技能且名稱全不重複。詳見 `agents.json` 的 `skillDiscovery.dedup`。
 
-腳本會驗證來源 frontmatter 的 `name` 等於 `<prefix><slug>`，不一致就報錯要求改來源，
-然後原樣複製整個資料夾（副本與原始檔逐位元組相同，`sync-skills` 的 hash 比對才會過）。
+腳本會驗證來源 frontmatter 的 `name` 等於 `agents.json` 的 `skillName`，不一致就報錯要求改來源，
+然後原樣複製整個資料夾（副本與原始檔逐位元組相同，`skill-sync` 的 hash 比對才會過）。
 各 agent 的原生安裝指令記錄在 `nativeInstall`，僅作為腳本無法執行時的參考。
 
 ---
 
 ## 步驟五：驗收並回報
 
-逐項確認 `<全域技能目錄>/agent-<slug>/SKILL.md` 存在，且 frontmatter `name` 與資料夾名稱一致。
+逐項確認 `<全域技能目錄>/<安裝名>/SKILL.md` 存在，且 frontmatter `name` 與資料夾名稱一致。
 
 若只看到 `02-github` 這種帶編號的資料夾，視為命名錯誤，不得回報成功。
 

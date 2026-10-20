@@ -2,8 +2,8 @@
 
 > 一份懶人包，四個 agent 通用：**Claude Code / Codex / OpenCode / Antigravity**。
 >
-> 取代原本各自維護的 `claude-code-lazy-packs`、`codex-lazy-packs`、
-> `opencode-lazy-packs`、`antigravity-lazy-pack`。
+> 取代原本各自維護的 `agent-setup-claude`、`agent-setup-codex`、
+> `agent-setup-opencode`、`agent-setup-antigravity`。
 
 ---
 
@@ -16,7 +16,7 @@
 
 - 內容只留**一份**，放在 `guides/`（人看的教學）與 `skills/`（agent 執行的步驟）
 - 差異全部集中在 **`agents.json`**
-- 技能名稱四個 agent **完全相同**，統一用 `agent-` 前綴
+- 技能名稱四個 agent **完全相同**（連接／安裝類 `setup-*`，日常工具類 `draw`／`comfyui`／`blender`）
 
 ---
 
@@ -66,7 +66,7 @@ powershell -ExecutionPolicy Bypass -File "scripts/install.ps1" -Agent claude -To
 ## Repo 結構
 
 ```
-agents-lazy-guide/
+agent-setup-guide/
 ├── README.md            # 你正在看的，人看的索引
 ├── INSTALL.md           # AI Agent 讀的安裝入口（不可改名為 SKILL.md）
 ├── agents.json          # ★ 四個 agent 的差異表，唯一的差異來源
@@ -93,17 +93,17 @@ agents-lazy-guide/
 
 > 這裡的 **Antigravity 指 Antigravity 2.0 桌面 App**（獨立的 agent 應用），不是程式編輯器／IDE。
 
-技能名稱四個 agent 相同，統一用 `agent-` 前綴：`agent-github`、`agent-obsidian`、
-`agent-firebase`、`agent-draw`、`agent-env-setup`、`agent-gemini-notebook`、`agent-cloudflare`、
-`agent-comfyui`、`agent-blender`、`agent-install-all`。
+技能名稱四個 agent 相同：`setup-github`、`setup-obsidian`、
+`setup-firebase`、`draw`、`setup-env`、`setup-gemini-notebook`、`setup-cloudflare`、
+`comfyui`、`blender`、`setup-all`。
 
 > **重點是「四家同名」，不是「有沒有前綴」。** OpenCode 會同時掃描 `~/.claude/skills`
 > 與 `~/.agents/skills`，所以用**各自**的前綴（`claude-github`／`codex-github`／
 > `opencode-github`）會讓同一主題在 OpenCode 裡出現三份；四家同名則會被自動去重成一份。
 > 實測（opencode 1.17.11）：切換前載入 35 個技能、六主題佔 18 份；切換後 23 個、六主題各 1 份。
 >
-> 前綴選 `agent-` 而非完全不帶，是為了讓本專案的技能在全域目錄裡集中成一區
-> ——純 slug 按字母排序會散落各處，也比較容易誤觸發。
+> 連接／安裝類加 `setup-`，是因為純 slug（`github`、`firebase`）太泛用、容易誤觸發；
+> `draw`、`comfyui`、`blender` 是日常工具，名稱本身就夠明確。
 
 完整差異（安裝指令、探索路徑、各 agent 注意事項）見 [`agents.json`](agents.json)。
 
@@ -122,7 +122,7 @@ agents-lazy-guide/
 powershell -ExecutionPolicy Bypass -File "scripts/install.ps1" -Agent all -Force
 ```
 
-> 改前綴要同時改 `agents.json` 的 `prefix` 與各 `SKILL.md` 的 `name`（兩者不符會被腳本擋下），
+> 改名要同時改 `agents.json` 的 `skillName` 與該 `SKILL.md` 的 `name`（兩者不符會被腳本擋下），
 > 改完重裝，並記得清掉舊名稱的資料夾
 > ——名稱不同的技能**不會互相覆蓋**，舊的會變成孤兒留在原地。
 
@@ -131,7 +131,7 @@ powershell -ExecutionPolicy Bypass -File "scripts/install.ps1" -Agent all -Force
 ## 舊 repo 怎麼辦
 
 四個舊 repo **不刪除**，README 改為指向本 repo 的 stub。
-`claude-code-lazy-packs` 是公開 repo，直接刪除會斷掉他人既有連結。
+`agent-setup-claude` 是公開 repo，直接刪除會斷掉他人既有連結。
 
 ---
 

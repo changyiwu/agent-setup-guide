@@ -1,6 +1,6 @@
 # MiniMax H3（影片＋聲音）
 
-本檔隨 `agent-comfyui` 安裝，由 `SKILL.md`〈模型筆記〉指向。社群版本比較、取捨原因與量測方式見 `guides/07-連接-ComfyUI.md` 步驟九。
+本檔隨 `comfyui` 安裝，由 `SKILL.md`〈模型筆記〉指向。社群版本比較、取捨原因與量測方式見 `guides/07-連接-ComfyUI.md` 步驟九。
 
 一次生成畫面與立體聲音軌（對白、音效、配樂）。主模型分兩種：**FL2VA**（文字轉影片、首幀／首尾幀轉影片；範本
 `video_minimax_h3_i2v`、`video_minimax_h3_t2v`）與 **Ref2VA**（參考圖／影片／聲音；`video_minimax_h3_r2v`，見〈Ref2VA〉）。

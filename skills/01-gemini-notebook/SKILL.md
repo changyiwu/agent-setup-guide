@@ -1,5 +1,5 @@
 ---
-name: agent-gemini-notebook
+name: setup-gemini-notebook
 description: 連接 Gemini Notebook（原 NotebookLM）MCP，讓 agent 讀寫 Google 筆記本並產生簡報、圖表、音訊。說「連接 Gemini Notebook」「連接 NotebookLM」時載入。
 ---
 

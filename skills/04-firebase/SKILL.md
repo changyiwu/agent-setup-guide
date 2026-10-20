@@ -1,5 +1,5 @@
 ---
-name: agent-firebase
+name: setup-firebase
 description: 連接 Firebase MCP，讓 agent 操作 Cloud Firestore、Auth、Storage。說「連接 Firebase」「設定 Firebase」時載入。
 ---
 

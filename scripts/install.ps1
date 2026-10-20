@@ -3,12 +3,12 @@
 #   檔內中文全部亂碼並在解析階段就失敗（PowerShell 7 兩者皆可）。用編輯器另存時請確認 BOM 還在。
 <#
 .SYNOPSIS
-    把 agents-lazy-guide 的通用 Skills 安裝到指定 AI Agent 的全域技能目錄。
+    把 agent-setup-guide 的通用 Skills 安裝到指定 AI Agent 的全域技能目錄。
 
 .DESCRIPTION
-    來源只有一份（skills/<編號-slug>/），frontmatter 的 name 已經是含前綴的安裝名（agent-<slug>）。
-    本腳本原封不動複製到各 agent 的全域目錄，只驗證 name 等於 agents.json 的 <prefix><slug>，
-    不改寫任何內容 —— 這樣副本與原始檔逐位元組相同，sync-skills 的 hash 比對才會過。
+    來源只有一份（skills/<編號-slug>/），frontmatter 的 name 就是安裝名（agents.json topics 的 skillName）。
+    本腳本原封不動複製到各 agent 的全域目錄，只驗證 name 等於 agents.json 的 skillName，
+    不改寫任何內容 —— 這樣副本與原始檔逐位元組相同，skill-sync 的 hash 比對才會過。
 
 .PARAMETER Agent
     claude / codex / opencode / antigravity / all
@@ -134,7 +134,7 @@ foreach ($key in $agentKeys) {
 
     foreach ($topicDef in $topics) {
         $srcDir = Join-Path $RepoRoot $topicDef.skillDir
-        $skillName = "$($agentDef.prefix)$($topicDef.slug)"
+        $skillName = $topicDef.skillName
         $destDir = Join-Path $skillsDir $skillName
 
         if (-not (Test-Path -LiteralPath $srcDir)) {
@@ -154,7 +154,7 @@ foreach ($key in $agentKeys) {
             continue
         }
 
-        # 安裝名以來源 frontmatter 的 name 為準，只驗證它等於 agents.json 的 <prefix><slug>
+        # 安裝名以來源 frontmatter 的 name 為準，只驗證它等於 agents.json 的 skillName
         try {
             $srcName = Get-SkillFrontmatterName -Content (Get-Content -LiteralPath $srcSkill -Raw -Encoding UTF8)
         } catch {

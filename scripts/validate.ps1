@@ -3,17 +3,17 @@
 #   Windows PowerShell 5.1 讀「無 BOM 的 UTF-8」會當成 ANSI，檔內中文全部亂碼、解析階段就失敗。
 <#
 .SYNOPSIS
-    驗證 agents-lazy-guide 的結構、命名、編碼與文件一致性。
+    驗證 agent-setup-guide 的結構、命名、編碼與文件一致性。
 
 .DESCRIPTION
     一切以 agents.json 為準，腳本本身不硬編碼任何主題名、技能名或 agent 名 ——
     新增主題只要照規則補進 agents.json 與三處清單，這支腳本不必改。
 
     檢查項目：
-      1. agents.json 可解析、四個 agent 的 prefix 必須相同
+      1. agents.json 可解析、每個 topic 都有合法的 skillName 且不重複
       2. topics 與 guides/、skills/ 雙向對齊（沒有孤兒檔、沒有缺檔、章號不重複）
       3. 三處清單同步（agents.json topics / README.md / INSTALL.md）
-      4. SKILL.md 的 frontmatter：name == <prefix><slug>、格式合法、description 不得提特定 agent
+      4. SKILL.md 的 frontmatter：name == skillName、格式合法、description 不得提特定 agent
       5. SKILL.md 行數（目標 120／上限 150，見 TEMPLATE.md）
       6. 附屬檔規則：不可命名 SKILL.md、不可有 frontmatter
       7. 根目錄不可出現 SKILL.md（否則 npx skills 會把整個 repo 當成單一 Skill）
@@ -107,25 +107,16 @@ if ($AgentKeys.Count -lt 1) {
     Add-Failure 'agents.json 的 agents 區塊是空的'
 }
 
-$Prefixes = @()
 foreach ($key in $AgentKeys) {
     $agentDef = $Config.agents.$key
-    foreach ($field in @('displayName', 'detectDir', 'skillsDir', 'prefix')) {
+    foreach ($field in @('displayName', 'detectDir', 'skillsDir')) {
         if (-not ($agentDef.PSObject.Properties.Name -contains $field) -or -not $agentDef.$field) {
             Add-Failure "agents.$key 缺少欄位：$field"
         }
     }
-    if ($agentDef.PSObject.Properties.Name -contains 'prefix') {
-        $Prefixes += $agentDef.prefix
-    }
 }
 
-# 核心規則：前綴必須四家相同，否則 OpenCode 多路掃描會出現多份同主題技能
-$DistinctPrefixes = @($Prefixes | Select-Object -Unique)
-if ($DistinctPrefixes.Count -gt 1) {
-    Add-Failure "四個 agent 的 prefix 必須完全相同，目前有 $($DistinctPrefixes.Count) 種：$($DistinctPrefixes -join ', ')"
-}
-$Prefix = if ($DistinctPrefixes.Count -ge 1) { $DistinctPrefixes[0] } else { '' }
+# 核心規則：安裝名四家相同——skillName 只在 topics 定義一次、四家共用，OpenCode 多路掃描才會去重
 
 $Topics = @($Config.topics)
 if ($Topics.Count -lt 1) {
@@ -220,7 +211,7 @@ if (Test-Path -LiteralPath $InstallPath) {
         if (-not $InstallText.Contains($topic.skillDir)) {
             Add-Failure "INSTALL.md 的清單缺少技能來源路徑：$($topic.skillDir)"
         }
-        $installName = "$Prefix$($topic.slug)"
+        $installName = $topic.skillName
         if (-not $InstallText.Contains($installName)) {
             Add-Failure "INSTALL.md 的清單缺少安裝名：$installName"
         }
@@ -252,7 +243,7 @@ foreach ($topic in $Topics) {
         continue
     }
 
-    $expectedName = "$Prefix$($topic.slug)"
+    $expectedName = $topic.skillName
     $nameMatch = [regex]::Match($frontmatter, '(?m)^\s*name\s*:\s*(?<name>.+?)\s*$')
     if (-not $nameMatch.Success) {
         Add-Failure "SKILL.md 的 frontmatter 沒有 name：$rel"
