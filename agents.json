@@ -160,10 +160,11 @@
     },
     "codex": {
       "displayName": "Codex",
-      "detectDir": "~/.agents",
+      "detectDir": "~/.codex",
       "skillsDir": "~/.agents/skills",
       "nativeInstall": "npx skills add . --skill <skill> --full-depth --agent codex -g -y",
       "notes": [
+        "偵測看 ~/.codex、技能裝 ~/.agents/skills（官方 USER 範圍）：Codex App 只建 ~/.codex，不會自動建 ~/.agents，新電腦以 ~/.agents 偵測會被略過（2026-10-27 於 LT-YI-RS 確認）。",
         "只使用本地 repo 當安裝來源，不得改用 GitHub URL 或內建 skill-installer 的 GitHub helper。",
         "--full-depth 在根目錄有 SKILL.md 時不可省略；本 repo 入口改為 INSTALL.md 後已無此限制，保留參數仍安全。",
         "GitHub CLI 與 GitHub App（connector）是兩條不同連線，見 guides/02-連接-GitHub.md。"
