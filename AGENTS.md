@@ -38,6 +38,7 @@ Claude Code / Codex / OpenCode / Antigravity 四個 agent，不用再維護四�
 - 2026-10-13：#07 測完 H3 動作參考剩下三項——同一句裡又照參考片又寫別的動作會兩邊各做一半（局部替換要指名哪一段）；手指會逐根照做，但人偶臉上的色塊五官會被貼到真人臉上，改成同色浮雕即可；10 秒照做、每步 3.2 倍（guide v0.17）
 - 2026-10-13：#07 H3 動作參考第四輪——同色浮雕臉換 seed 仍會被貼上五官，改成同材質挖凹陷（嘴、眼窩）兩個 seed 都沒貼且表情對時；多段參考影片可同時接但成本疊加，兩人同框一支片即可；參考片的音軌接了就被原樣搬進成品、提示詞不提也一樣（guide v0.18）
 - 2026-10-20：repo 由 `agents-lazy-guide` 改名 `agent-setup-guide`；技能安裝名改為 `setup-*`／`draw`／`comfyui`／`blender`，`agents.json` 改用每個 topic 的 `skillName`（取代 `prefix`）
+- 2026-10-27：第一台 RTX Spark（LT-YI-RS）上機——Codex 改以 `~/.codex` 偵測；Claude 桌面版 MSIX 會導向 AppData 寫入、智慧型應用程式控制會擋 uv 下載的 Python，寫進 #00；ComfyUI Desktop ARM64 版直接用到 CUDA、`vram_total` 高估，改寫 #07 `references/windows-arm.md`；#01 釘 `cryptography` 46.0.3；#05 路線 C 在 Codex 0.164 的 `exec` 沒有內建生圖
 
 ## 目標與路線圖
 

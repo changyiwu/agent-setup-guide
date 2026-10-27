@@ -33,7 +33,8 @@ description: 生圖技能。當使用者要求「畫一張」、「生一張圖�
 ## 路線 C 流程（Codex CLI 代為生圖）
 
 1. **找 `codex.exe`**（依序，找到即停；版本資料夾會隨更新改名，不可寫死）：
-   - Windows Codex App：`Join-Path (Get-AppxPackage OpenAI.Codex).InstallLocation 'app\resources\codex.exe'`
+   - Windows Codex App 實際使用的：`~/.codex/config.toml` 裡的 `CODEX_CLI_PATH`（`%LOCALAPPDATA%\OpenAI\Codex\bin\<雜湊>\codex.exe`）
+   - Windows Codex App 安裝目錄：`Join-Path (Get-AppxPackage OpenAI.Codex).InstallLocation 'app\resources\codex.exe'`
    - App 附帶的舊副本：`~/.codex/.sandbox-bin/codex.exe`（版本可能落後）
    - 獨立安裝的 CLI：`Get-Command codex`（macOS／Linux：`which codex`）
 2. **確認可用**：`& $cx login status` 要顯示 `Logged in using ChatGPT`；
@@ -46,6 +47,8 @@ description: 生圖技能。當使用者要求「畫一張」、「生一張圖�
 
    一張約 1 分鐘，逾時至少給 5 分鐘；原圖同時留在 `~/.codex/generated_images/<工作識別碼>/`。
    不要加 `--dangerously-bypass-approvals-and-sandbox`，`workspace-write` 已足夠複製檔案。
+   回報「沒有可用的內建生圖工具」或只找到要核准的 `canva_generate_image` 時，就是這台的 `exec` 沒有內建生圖
+   （2026-10-27 Codex 0.164.0-alpha、App 26.1021 實測如此）：**不要改用 Canva、不要加核准繞過**，改問是否走路線 B。
 4. **親自開圖檢查**後才回報，不要只信 Codex 的文字回報。
 
 ## 路線 B 流程

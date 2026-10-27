@@ -58,7 +58,7 @@ description: 用官方 comfy-cli 操作本機 ComfyUI：套用範本或使用者
      `comfy --json templates fetch <名稱> -o <檔>`。`templates check` 要 ComfyUI 在線（否則回 `server_not_running`），`fetch` 不用。
      名稱以 `api_` 開頭的範本是付費雲端節點。
    - **依步驟 4 的 VRAM 選版本**：該模型有〈模型筆記〉就先讀再選。沒有筆記時，模型檔總大小超過 VRAM 就先找量化版範本或量化檔，
-     不要讓它靠系統記憶體硬跑。統一記憶體的機器（RTX Spark）回報的 `vram_total` 是整池記憶體，見 `references/windows-arm.md`。
+     不要讓它靠系統記憶體硬跑。統一記憶體的機器（RTX Spark）`vram_total` 會高估，改看 `nvidia-smi`，見 `references/windows-arm.md`。
    - 使用者自己的：🖐️ 請使用者在 ComfyUI 把工作流程存成 JSON（UI 或 API 格式都可以）。
      或直接取使用者在 ComfyUI 生過的 PNG：它的 `prompt` 文字區塊就是完整的 API 格式工作流程
      （`json.loads(Image.open(p).info["prompt"])`；ComfyUI 的 `.venv` 裡就有 Pillow）。工作流程檔放專案的 `comfyui/`。
@@ -120,7 +120,7 @@ description: 用官方 comfy-cli 操作本機 ComfyUI：套用範本或使用者
 | `models/minimax-music3.md` | `audio_minimax_music_3` | 檔案、欄位地址、風格描述要點（更高、更有力）、實測數據 |
 
 實測出新模型的設定或數據時，新增一份 `models/<模型>.md` 並補進這張表，不要寫進本檔。
-平台專屬：`references/windows-arm.md`（Windows on ARM／RTX Spark）——GPU 沒用上時的安裝路線、統一記憶體的 VRAM 判讀與啟動參數。
+平台專屬：`references/windows-arm.md`（Windows on ARM／RTX Spark）——Desktop ARM64 版、統一記憶體的 VRAM 判讀與啟動參數、智慧型應用程式控制。
 
 ## 安全規則
 

@@ -19,7 +19,20 @@ GitHub CLI —— 那些全部由 `setup-github` Skill 負責。
 3. **只補裝缺少的項目**，安裝前先顯示命令並取得確認：
    - Node.js LTS — Windows：`winget install --id OpenJS.NodeJS.LTS --exact --accept-source-agreements --accept-package-agreements`；macOS：`brew install node`；Linux：依官方建議裝目前 LTS
    - uv — Windows：`powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"`；macOS/Linux：`curl -LsSf https://astral.sh/uv/install.sh | sh`
+   - **Windows on ARM**：winget 一律加 `--architecture arm64 --source winget`，裝完用 `node -p process.arch` 確認是 `arm64`
+     （uv 的安裝腳本會自己選 `aarch64-pc-windows-msvc`）。
 4. **驗收**：`node --version`、`uv --version` 正常，且 agent 本體能開啟並正常對話。
+
+## Windows 上 uv 的兩個陷阱（裝完就檢查）
+
+- **從 Claude 桌面版（MSIX）執行時，寫進 `%APPDATA%`／`%LOCALAPPDATA%` 的東西會被導向 `…\Packages\Claude_*\LocalCache\`**，
+  其他 agent 看不到，uv 裝 Python 還會報 `Missing expected target directory for Python minor version link`。
+  取得同意後設使用者環境變數 `UV_PYTHON_INSTALL_DIR=%USERPROFILE%\.local\share\uv\python`、
+  `UV_TOOL_DIR=%USERPROFILE%\.local\share\uv\tools`。同理不要在 Claude 桌面版裡 `npm install -g`（會落在 `%APPDATA%\npm` 的導向副本）。
+- **開著智慧型應用程式控制時**，uv 下載的 Python 沒簽章的 DLL 會被擋（`應用程式控制原則已封鎖此檔案`）。
+  不要叫使用者關掉它：取得同意後用 winget 裝 python.org 的 Python（`Python.Python.3.13`，有簽章），
+  設使用者環境變數 `UV_PYTHON_PREFERENCE=system`。確認方法：`Get-ItemProperty HKLM:\SYSTEM\CurrentControlSet\Control\CI\Policy`
+  的 `VerifiedAndReputablePolicyState` 為 1 即開啟。
 
 ## 依 agent 的本體處理
 

@@ -18,6 +18,9 @@ description: 連接 Gemini Notebook（原 NotebookLM）MCP，讓 agent 讀寫 Go
 1. **檢查** `uv --version`，缺少時先詢問再安裝。
 2. **安裝**：`uv tool install notebooklm-mcp-cli`（已安裝改 `uv tool upgrade`）。
    **版本不得低於 0.9.3**（新網域支援）。修改使用者層級 uv tool 前先取得同意。
+   **Windows on ARM**：`cryptography` 46.0.3 之後沒有 win_arm64 wheel，會改成從原始碼編譯（要 Rust）而失敗 →
+   `uv tool install notebooklm-mcp-cli --with "cryptography==46.0.3" --no-build-package cryptography`（實測 0.15.8 可用）。
+   import 時報 `應用程式控制原則已封鎖此檔案`，見 `setup-env`〈Windows 上 uv 的兩個陷阱〉。
 3. **驗證兩個執行檔都存在**（用途不同，缺一不可）：`nlm --version`；
    Windows `Get-Command nlm, notebooklm-mcp -All`，macOS/Linux `which nlm`、`which notebooklm-mcp`。
    找不到 → `uv tool update-shell` 後重開終端機，再查 `uv tool dir --bin` 是否在 PATH。

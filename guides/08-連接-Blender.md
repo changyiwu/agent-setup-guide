@@ -37,7 +37,8 @@ MCP 負責互動入口，`bpy` 才是實際建模 API。背景 runner 不是次�
 
 ## 先備條件與風險
 
-- Blender 5.1 以上；本版在 Windows Blender 5.2.2 LTS 驗證
+- Blender 5.1 以上；本版在 Windows Blender 5.2.2 LTS 驗證。Windows on ARM（RTX Spark）有原生 ARM64 版，
+  2026-10-27 以 5.2.3 LTS 跑背景 runner 的範本場景（EEVEE 算圖）約 27 秒通過；官方 MCP 在 ARM 上尚未實測
 - `uv` 與可執行本機程序的 agent
 - 工作目錄可寫入，且有足夠空間保存 `.blend`、貼圖與渲染
 - 使用者已知道：官方 MCP 會在 Blender 權限下執行 LLM 產生的 Python

@@ -57,7 +57,8 @@ Comfy 官方同時提供 CLI 與 MCP，**本懶人包只用 CLI**。
 
 - [ ] 已安裝 **ComfyUI**（建議用 [ComfyUI Desktop](https://www.comfy.org/download)，一鍵安裝；要不要開啟 Desktop 見步驟零）
 - [ ] 有 NVIDIA 顯卡，**VRAM 8GB 以上**（實測 RTX 5060 Laptop 8GB、RTX 5060 Ti 16GB；VRAM 越大能跑的模型越多）
-  - Windows on ARM 的筆電（例如 NVIDIA RTX Spark）**尚未實測**：GPU 版 PyTorch 還是 NVIDIA 的開發者預覽，裝好後要確認 ComfyUI 真的用到顯卡（技能會檢查）
+  - Windows on ARM 的筆電（例如 NVIDIA RTX Spark）：ComfyUI Desktop 有 ARM64 版，內建 NVIDIA 預覽版的 CUDA PyTorch，2026-10-27 實測直接用到顯卡（生成速度尚未實測）。
+    統一記憶體會切成系統 RAM 與 VRAM 兩塊，ComfyUI 回報的顯存比實際大，選模型版本看 `nvidia-smi`（技能會處理）
 - [ ] 已安裝 **uv**（沒有的話先做懶人包 #00 環境建置）
 - [ ] 磁碟有足夠空間放模型（生圖模型一組約 11–20 GB，依顯卡選的版本而定，見步驟四；影片模型更大，MiniMax H3 一組約 34–41 GB，見步驟九）
 
