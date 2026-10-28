@@ -118,9 +118,9 @@ description: 用官方 comfy-cli 操作本機 ComfyUI：套用範本或使用者
 | `models/minimax-h3.md` | `video_minimax_h3_i2v`、`_r2v` 等 | 依顯卡選主模型與步數（含 NVFP4 下載資訊）、清快取、欄位地址、加速 LoRA 開關、台詞提示詞格式、實測數據、Ref2VA（多參考圖、參考聲音）、多段影片的一致性與剪接、FL2VA 首尾幀 |
 | `models/qwen-image-edit.md` | `image_qwen_image_edit_2511_int8` | 照指令改圖：真人照換裝成定妝照、畫格去人做場景版（給 H3 當參考圖）、欄位、速度 |
 | `models/minimax-music3.md` | `audio_minimax_music_3` | 檔案、欄位地址、風格描述要點（更高、更有力）、實測數據 |
+| `models/yue2.md`、`models/ace-step.md` | `audio_yue2_music_cover`、`audio_ace_step_1_5_*` | 保留旋律換曲風（cover）：適用範圍、檔案、欄位、中文被唱成粵語的對策、實測。**要求逐音照譜、照詞唱時兩者都做不到，先讀** |
 
-實測出新模型的設定或數據時，新增一份 `models/<模型>.md` 並補進這張表，不要寫進本檔。
-平台專屬：`references/windows-arm.md`（Windows on ARM／RTX Spark）——Desktop ARM64 版、統一記憶體的 VRAM 判讀與啟動參數、智慧型應用程式控制。
+實測出新模型的設定或數據時，新增一份 `models/<模型>.md` 並補進這張表，不要寫進本檔。平台專屬：`references/windows-arm.md`（Windows on ARM／RTX Spark）——Desktop ARM64 版、統一記憶體的 VRAM 判讀與啟動參數、智慧型應用程式控制。
 
 ## 安全規則
 
