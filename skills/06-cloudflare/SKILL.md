@@ -18,6 +18,26 @@ MCP 讓 agent 在對話中查帳號、文件與資源清單，沒有部署工具
 網站放在 Workers 的「靜態資產」上：只發檔案時沒有 Worker 程式碼；加上 D1 後（步驟 11），
 `/api/*` 交給一支小 Worker 處理，其他路徑照舊直接發檔案。
 
+## 開始前：檢查做到哪（可中斷續跑）
+
+**每次開始都由上往下查**，已完成的步驟跳過、不重做；前一項沒過，後面都不用查，全新帳號第一項就會停下，從步驟 1 走。
+跳過只省工作，**不省同意**：部署、`d1 create`、正式遷移每次仍要當下同意，上一輪的授權不沿用。
+
+| 檢查（都不寫入） | 已完成的判斷 | 跳過 |
+|---|---|---|
+| `package.json` | devDependencies 有 `wrangler`；本機缺 `node_modules` 就先 `npm install` | 2 |
+| `npx wrangler whoami` | 已登入；帳號跟上次不同就停下問，不要繼續 | 3 |
+| `wrangler.jsonc` | 有 `name` 就跳過 3.5，名稱一律讀回；也有 `assets` 才跳過 6 | 3.5、6 |
+| 問使用者（下一列已有部署就不用問） | 帳號已有子網域 | 4 |
+| `.gitignore` | 有 `.wrangler/` | 7 |
+| `npx wrangler deployments list --name <name>` | 有版本：這次是更新不是首次；查無此 Worker 代表還沒部署 | 無，仍要發布授權 |
+| `d1_databases` 有 `database_id`，且 `npx wrangler d1 list` 查得到 | 資料庫已建立 | `references/d1.md` 子步驟 1 |
+| `npx wrangler d1 migrations list <資料庫> --local` | 沒有待套用的遷移 | 同檔子步驟 3 |
+
+`d1 list` 有這個名稱、設定檔卻沒有 binding，代表上次建立後中斷：問使用者是否沿用，同意就把 `database_id` 補進設定，**不要重建**。
+正式資料庫的遷移狀態**不在這裡查**：`migrations list --remote` 會在正式資料庫建 `d1_migrations` 表，不是唯讀；
+`migrations apply --remote` 本身會略過已套用的檔案，直接走 `references/d1.md` 子步驟 6 的同意點。
+
 ## 步驟
 
 1. **檢查環境**：`node -v`（需 ≥ 20）、`npm -v`，並確認專案根目錄有 `package.json` 與可用的建置指令。
@@ -25,11 +45,16 @@ MCP 讓 agent 在對話中查帳號、文件與資源清單，沒有部署工具
    `npm install --save-dev --save-exact wrangler`，再以 `npx wrangler --version` 確認。
 3. **登入**：先跑 `npx wrangler whoami`。未登入時 🖐️ **請使用者自己執行** `npx wrangler login`——
    它會開瀏覽器做 OAuth，需要互動式終端，agent 不可代跑，也不要改用貼 API Token 的方式。
-4. **帳號子網域**：🖐️ 使用者到 Cloudflare 後台 → Workers & Pages 設定一次。
+3.5 **資源名稱**：不要請使用者想名字，也不要用 `hello`、`test` 這類簡稱。在專案根目錄執行一次：
+   `node "<本技能資料夾>/scripts/resource-name.mjs"`，輸出的 `worker`、`d1`、`subdomain` 沿用到後面所有步驟。
+   設定檔已有 `name` 時它會讀回而不產生，可以放心重跑；使用者指定名稱時改用 `node "<本技能資料夾>/scripts/resource-name.mjs" --name <名稱>`。
+   名稱是 `cf-` 加 6 位隨機數字再加專案名（`cf-482913-my-site`）；**不要用帳號 Email 或 @ 前的帳號名稱取名**，名稱會進公開網址與 `wrangler.jsonc`。
+4. **帳號子網域**：🖐️ 使用者到 Cloudflare 後台 → Workers & Pages 設定一次，建議填步驟 3.5 的 `subdomain`，要用別的也可以。
    全球唯一、一個帳號一個；**之後修改會讓所有舊網址失效**，先提醒再讓他決定。
+   **不要留到部署時才處理**：agent 環境裡的 `wrangler deploy` 遇到沒有子網域的帳號，會不經確認用專案名稱註冊，名字被占用則部署失敗。
 5. **唯讀驗收**：`npx wrangler whoami` 顯示正確帳號即可。
    **只要求「連接 Cloudflare」時，做到這裡就結束。**
-6. **（選用）設定靜態網站**：先詢問。在專案根目錄建立 `wrangler.jsonc`，`assets.directory` 指向建置
+6. **（選用）設定靜態網站**：先詢問。在專案根目錄建立 `wrangler.jsonc`，`name` 填步驟 3.5 的 `worker`，`assets.directory` 指向建置
    輸出目錄；單頁應用要加 `"not_found_handling": "single-page-application"`。
    快取標頭寫成建置輸出目錄裡的 `_headers`（來源放 `public/_headers` 讓建置自動複製）。
    **Worker 名稱（`name`）之後必須與後台的 Worker 同名**，不一致會讓自動建置直接失敗。
@@ -37,7 +62,7 @@ MCP 讓 agent 在對話中查帳號、文件與資源清單，沒有部署工具
    把 `.wrangler/` 加進 `.gitignore`，並加進 lint 設定的忽略清單，否則 lint 會無故失敗。
 8. **（選用）本機驗證**：`npx wrangler dev`，確認首頁、深層路徑（單頁應用應回 200）、
    快取標頭都正確後再上線。
-9. **（選用）首次部署**：**會公開到網路上**，先確認目標帳號、Worker 名稱、待發布內容與測試結果，並取得使用者對本次發布的明確授權。
+9. **（選用）首次部署**：**會公開到網路上**，先確認帳號已有子網域（步驟 4）、目標帳號、Worker 名稱、待發布內容與測試結果，並取得使用者對本次發布的明確授權。
    先 `npm run build`；已授權時由 agent 執行 `npx wrangler deploy`，成功後核對部署版本與網站。使用者若想自行操作，提供同一指令。
 10. **（選用）接自動部署**：**先問使用者要哪一條路線**，兩條都可行、取捨不同。
     **兩條不可並存**——同時接會讓每次 push 觸發兩次部署、互相覆蓋。
@@ -74,6 +99,7 @@ MCP 讓 agent 在對話中查帳號、文件與資源清單，沒有部署工具
 |---|---|
 | `references/github-actions.md` | 使用者在步驟 10 選了路線 B，或要從 B 換回 A |
 | `references/d1.md` | 使用者要求存資料（步驟 11），或 D1 出錯要還原、不要資料庫了 |
+| `scripts/resource-name.mjs` | 步驟 3.5 執行，不用先讀 |
 
 路徑相對於本技能資料夾。
 
@@ -87,6 +113,7 @@ MCP 讓 agent 在對話中查帳號、文件與資源清單，沒有部署工具
 - **刪除資料庫與還原一律 🖐️ 由使用者自己執行**（`d1 delete`、`d1 time-travel restore` 或後台），
   agent 不得代跑，也不得改用 MCP 的刪除工具。
 - 正式資料的匯出檔（`d1 export` 的 `.sql`）不得放進 repo。
+- 帳號 Email 只在對話回報時出現，不寫進 repo、設定檔或任何會公開的內容。
 - **不要求使用者把 API Token 貼進對話、Markdown 或 repo**；本機一律走 `wrangler login` 的 OAuth。
   唯一的例外是步驟 10 路線 B 的 CI 憑證：那顆 token 由**使用者自己**用 `gh secret set` 貼進
   GitHub 的加密 secret store，**不經過對話、不進任何檔案**，所以不違反本條。agent 全程看不到它，
@@ -103,6 +130,6 @@ D1 的還原（time-travel）與刪除一律 🖐️ 由使用者自己執行，
 
 ## 回報
 
-Node 與 Wrangler 版本、登入帳號、帳號子網域、Worker 名稱與網址、產生或修改的檔案清單、
+Node 與 Wrangler 版本、登入帳號、帳號子網域、Worker 名稱與網址、續跑時跳過了哪些步驟、產生或修改的檔案清單、
 本機驗證結果、部署狀態、自動部署走哪一條路線與其狀態、
 D1 名稱／地區／binding 與已套用的遷移（本機、正式各自）、API 路徑、使用者仍需自己完成的互動步驟。

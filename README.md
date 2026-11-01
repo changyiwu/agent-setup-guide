@@ -141,6 +141,10 @@ powershell -ExecutionPolicy Bypass -File "scripts/install.ps1" -Agent all -Force
 [claude-code-lazy-packs](https://github.com/mathruffian-dot/claude-code-lazy-packs)，
 依自身使用需求整併為四 agent 通用版本。原始著作權歸原作者所有。
 
+#06 Cloudflare 的資源名稱自動產生與可中斷續跑，構想來自三師爸的
+[agent-connect-lazy-pack](https://github.com/mathruffian-dot/agent-connect-lazy-pack)。
+該 repo 未附授權條款，故本專案只參考做法，文字與腳本皆為重寫。
+
 ## 授權
 
 MIT License，歡迎自由使用與分享。

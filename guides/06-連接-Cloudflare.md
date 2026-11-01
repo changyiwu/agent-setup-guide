@@ -1,8 +1,8 @@
 ---
 title: 'AI Agent 懶人包 #06：連接 Cloudflare'
-date: '2026-09-14'
+date: '2026-11-01'
 type: 懶人包
-version: v0.4
+version: v0.5
 status: 初版（部署流程源自實際專案遷移；D1 段落依官方文件撰寫；皆尚未以技能形式重跑）
 tags:
   - 懶人包
@@ -13,7 +13,7 @@ tags:
 
 # 懶人包 #06：連接 Cloudflare
 
-**版本** v0.3｜**更新日期** 2026-09-15｜**適用** Claude Code / Codex / OpenCode / Antigravity
+**版本** v0.5｜**更新日期** 2026-11-01｜**適用** Claude Code / Codex / OpenCode / Antigravity
 
 ---
 
@@ -25,6 +25,7 @@ tags:
 - 完成**首次上線**，拿到一個 `https://<專案>.<你的子網域>.workers.dev` 網址
 - 接上 **Workers Builds**，之後 push 到 Git 就自動建置上線，不用再手動部署
 - （選用）加上 **D1 資料庫**與一支小小的 API，讓網站能存取資料（留言、報名、計分…）
+- 自動產生不會撞名的資源名稱，你不用想名字；**做到一半中斷，重跑會從斷點接著做**
 
 做完之後，換任何一台電腦、任何一個 agent，都能用同一套流程再開一個新網站。
 
@@ -79,7 +80,7 @@ tags:
 
 - [ ] `npx wrangler whoami` 顯示你的 Cloudflare 帳號
 - [ ] 帳號子網域已設定，你知道它叫什麼
-- [ ] 專案根目錄有 `wrangler.jsonc`，`name` 與後台的 Worker 同名
+- [ ] 專案根目錄有 `wrangler.jsonc`，`name` 與後台的 Worker 同名，且不含你的 Email 帳號名稱
 - [ ] `npx wrangler dev` 能在本機跑起來，深層路徑與快取標頭都正確
 - [ ] 網站已上線，用瀏覽器打得開
 - [ ] （選用）push 到主要分支後會自動建置上線
@@ -100,6 +101,8 @@ tags:
 - **D1 不主動提議。** 預設是純靜態站，使用者要求存資料時才做步驟十。
 - **建立資源與改資料表結構走 Wrangler**；Cloudflare MCP 只用來列出、查看資源（原因見上方分工說明）。
 - **修改既有檔案前先顯示現值**（`wrangler.jsonc`、`.gitignore`、lint 設定）。
+- **已完成的步驟跳過不重做，但同意不沿用。** 部署、建立資料庫、套用正式遷移，每次重跑仍要當下同意。
+- **帳號 Email 只在對話回報時出現**，不寫進名稱、設定檔、repo 或網頁。
 - **不要把 API Token、帳號 ID 以外的機密寫進 repo 或對話紀錄。**
 - 每個步驟失敗時給出具體排查方向，不要只說「請重試」。
 
@@ -118,6 +121,31 @@ tags:
 
 > 全部通過後告知：「環境檢查完成，開始執行。」
 > 安裝完工具後若指令仍找不到，提醒使用者完全關閉並重開 agent。
+
+### 做到一半重跑：先查做到哪
+
+這份流程可以中斷再接。**每次開始都由上往下查**，已完成的步驟跳過；前一項沒過，後面都不用查，
+全新帳號第一項就會停下，從步驟一走。
+
+| 檢查（都不寫入） | 已完成的判斷 | 跳過 |
+|---|---|---|
+| `package.json` | devDependencies 有 `wrangler`；本機缺 `node_modules` 就先 `npm install` | 步驟一 |
+| `npx wrangler whoami` | 已登入；帳號跟上次不同就停下問，不要繼續 | 步驟二 |
+| `wrangler.jsonc` | 有 `name` 就跳過步驟二之一，名稱一律讀回；也有 `assets` 才跳過步驟四 | 步驟二之一、步驟四 |
+| 問你（下一列已有部署就不用問） | 帳號已有子網域 | 步驟三 |
+| `.gitignore` | 有 `.wrangler/` | 步驟六 |
+| `npx wrangler deployments list --name <name>` | 有版本：這次是更新不是首次；查無此 Worker 代表還沒部署 | 無，仍要發布授權 |
+| `d1_databases` 有 `database_id`，且 `npx wrangler d1 list` 查得到 | 資料庫已建立 | 步驟十的 1 |
+| `npx wrangler d1 migrations list <資料庫> --local` | 沒有待套用的遷移 | 步驟十的 3 |
+
+> **跳過只省工作，不省同意。** 部署、建立資料庫、套用正式遷移每次都要當下問你，上一輪的授權不沿用。
+>
+> **建立資料庫後中斷**：`d1 list` 有這個名稱、`wrangler.jsonc` 卻沒有 binding。agent 會問你要不要沿用，
+> 同意就把 `database_id` 補進設定，不會重建。
+>
+> **為什麼不查正式資料庫的遷移狀態**：`migrations list --remote` 看起來是查詢，實際會先在正式資料庫建
+> `d1_migrations` 表，不是唯讀。`migrations apply --remote` 本身就會略過已套用的檔案，所以直接走
+> 步驟十的同意點即可，重跑安全。
 
 ---
 
@@ -167,13 +195,51 @@ npx wrangler login
 
 ---
 
+## 步驟二之一：自動產生資源名稱
+
+**你不用想名字。** agent 在專案根目錄執行一次：
+
+```bash
+node "<本技能資料夾>/scripts/resource-name.mjs"
+```
+
+輸出一行 JSON（數字每次不同）：
+
+```json
+{"source":"generated","nickname":"cf-482913","subdomain":"cf-482913","worker":"cf-482913-my-site","d1":"cf-482913-my-site-db"}
+```
+
+| 名稱 | 範圍 | 為什麼要處理 |
+|---|---|---|
+| 帳號子網域 | **全 Cloudflare 唯一** | `test`、`hello` 這種名字早被搶走 |
+| Worker | 你的帳號內唯一 | 撞到舊 Worker 會蓋掉它 |
+| D1 資料庫 | 你的帳號內唯一 | 同名建立會失敗 |
+
+名稱由三段組成：固定的 `cf`、6 位隨機數字、`package.json` 的專案名（沒有就用 `site`）。
+
+> **為什麼不用 Email 取名**：這些名稱會出現在公開網址和 `wrangler.jsonc`，而 repo 可能是公開的。
+> 把 `@` 前面的帳號名稱放進去，別人補上 `@gmail.com` 就得到你的 Email。
+> 防撞名靠的是隨機數字，所以腳本完全不讀帳號資訊，也不需要先登入。
+
+**只產生一次。** `wrangler.jsonc` 已有 `name` 時腳本會讀回（`source` 顯示設定檔名稱），不會產生新的，
+所以重跑不會讓 Worker 與 D1 對不起來。還沒寫進 `wrangler.jsonc` 之前重跑，數字會變，
+但這時還沒建立任何資源，沒有影響。腳本讀不懂設定檔時會報錯停下，不會改走產生。
+
+想自己取名就告訴 agent，它會改跑（用 `--check <名稱>` 則只檢查格式）：
+
+```bash
+node "<本技能資料夾>/scripts/resource-name.mjs" --name my-blog
+```
+
+---
+
 ## 步驟三：設定帳號子網域
 
 🖐️ **這一步要使用者自己做**，在 Cloudflare 後台完成。
 
 1. 開啟 [dash.cloudflare.com](https://dash.cloudflare.com)
 2. 左側選 **Workers & Pages**
-3. 第一次進入會要求你選擇子網域，輸入想要的名字後送出
+3. 第一次進入會要求你選擇子網域，輸入想要的名字後送出。沒有偏好就填步驟二之一的 `subdomain`
 4. 之後要改：Workers & Pages 頁面「Your subdomain」旁的 **Change**
 
 你的網站網址會長這樣：
@@ -186,6 +252,10 @@ npx wrangler login
 > 而且**改掉之後所有舊網址會立刻失效**，第一次就挑一個願意長期使用的名字，
 > 不要用 `test`、`temp` 這種暫時性的名稱。
 
+> ⚠️ **不要留到部署時才處理。** Wrangler 偵測到自己在 agent 環境執行時，遇到還沒有子網域的帳號，
+> 會在 `wrangler deploy` 時**不經確認**用 `package.json` 的專案名（沒有就用資料夾名）註冊。
+> 名字被占用就部署失敗；沒被占用，你就得到一個自己沒選過、改了又會讓舊網址失效的子網域。
+
 如果你只是要「連接 Cloudflare」，做到這裡就結束了。以下是部署網站的部分。
 
 ---
@@ -196,7 +266,7 @@ npx wrangler login
 
 ```jsonc
 {
-  "name": "my-site",
+  "name": "cf-482913-my-site",
   "compatibility_date": "2026-08-18",
   "assets": {
     "directory": "./dist",
@@ -207,7 +277,7 @@ npx wrangler login
 
 | 欄位 | 要改成什麼 |
 |---|---|
-| `name` | 你的專案名，**只能用小寫英數與連字號**。這會變成網址的第一段 |
+| `name` | 步驟二之一的 `worker`，**只能用小寫英數與連字號**。這會變成網址的第一段 |
 | `compatibility_date` | 填今天的日期 |
 | `assets.directory` | 步驟零記下的建置產物目錄 |
 | `not_found_handling` | 單頁應用填 `single-page-application`；多頁靜態網站改填 `404-page` |
@@ -283,7 +353,8 @@ npx wrangler dev
 
 ## 步驟八：首次部署
 
-> ⚠️ **這一步會把網站公開到網際網路上。** 上線前先確認內容不含個資、測試資料、未授權素材。
+> ⚠️ **這一步會把網站公開到網際網路上。** 上線前先確認內容不含個資、測試資料、未授權素材，
+> 帳號也已有子網域（步驟三）。
 > agent 必須取得使用者對本次發布的明確授權；授權後可由 agent 執行部署指令。
 
 ```bash
@@ -444,12 +515,12 @@ agent 會先跟你確認三件事，你說好才執行：
 
 | 要確認的 | 說明 |
 |---|---|
-| 資料庫名稱 | 小寫英數與連字號，例如 `my-site-db` |
+| 資料庫名稱 | 預設用步驟二之一的 `d1`，小寫英數與連字號 |
 | 地區 | 台灣選 `apac`（亞太）。**建立後不能改**，而且只是偏好，Cloudflare 不保證一定放在那裡 |
 | binding 名稱 | 程式碼裡用來叫資料庫的名字，預設 `DB`（程式碼寫 `env.DB`） |
 
 ```bash
-npx wrangler d1 create my-site-db --location apac --binding DB --update-config
+npx wrangler d1 create cf-482913-my-site-db --location apac --binding DB --update-config
 ```
 
 `--update-config` 會自動把設定寫進 `wrangler.jsonc`。完成後檢查是否多了這段：
@@ -458,7 +529,7 @@ npx wrangler d1 create my-site-db --location apac --binding DB --update-config
 "d1_databases": [
   {
     "binding": "DB",
-    "database_name": "my-site-db",
+    "database_name": "cf-482913-my-site-db",
     "database_id": "（d1 create 印出的 ID）"
   }
 ]
@@ -474,7 +545,7 @@ npx wrangler d1 create my-site-db --location apac --binding DB --update-config
 不要直接對資料庫下 `CREATE TABLE`，改用**遷移檔**記錄每一次結構變更，才能在本機與正式環境重現：
 
 ```bash
-npx wrangler d1 migrations create my-site-db create-notes
+npx wrangler d1 migrations create cf-482913-my-site-db create-notes
 ```
 
 它會在 `migrations/` 產生一個帶編號的 `.sql` 檔，寫入：
@@ -493,7 +564,7 @@ CREATE TABLE notes (
 ### 3. 套用到本機
 
 ```bash
-npx wrangler d1 migrations apply my-site-db --local
+npx wrangler d1 migrations apply cf-482913-my-site-db --local
 ```
 
 本機資料庫是 `.wrangler/state/` 裡的一個 SQLite 檔，跟正式資料完全分開，怎麼玩都不影響線上。
@@ -504,7 +575,7 @@ npx wrangler d1 migrations apply my-site-db --local
 
 ```jsonc
 {
-  "name": "my-site",
+  "name": "cf-482913-my-site",
   "compatibility_date": "2026-09-14",
   "main": "./worker/index.js",
   "assets": {
@@ -513,7 +584,7 @@ npx wrangler d1 migrations apply my-site-db --local
     "run_worker_first": ["/api/*"]
   },
   "d1_databases": [
-    { "binding": "DB", "database_name": "my-site-db", "database_id": "（ID）" }
+    { "binding": "DB", "database_name": "cf-482913-my-site-db", "database_id": "（ID）" }
   ]
 }
 ```
@@ -569,12 +640,12 @@ npx wrangler dev
 ### 6. 套用到正式資料庫（⚠️ 要你同意）
 
 ```bash
-npx wrangler d1 migrations apply my-site-db --remote
+npx wrangler d1 migrations apply cf-482913-my-site-db --remote
 ```
 
 > ⚠️ **這一步 Wrangler 本來會問「確定要套用嗎？」，但在 agent 的執行環境裡會自動跳過。**
 > agent 執行指令的環境不是互動式終端，Wrangler 偵測到後會直接套用。所以 agent 必須**自己先**
-> 列出要套用的遷移檔、取得你的同意，才能跑這道指令。
+> 列出要套用的遷移檔、取得你的同意，才能跑這道指令。已套用過的檔案會自動略過，中斷後重跑不會出事。
 
 **順序很重要**：先套用遷移、再部署程式碼。反過來的話，新程式碼上線那一刻資料表還不存在，API 會直接報錯。
 
@@ -619,6 +690,7 @@ CI 部署若出現 D1 相關的權限錯誤，到後台編輯那顆 token，加�
 - 帳號子網域：
 - Worker 名稱：
 - 網站網址：
+- 續跑時跳過的步驟：
 
 【檔案異動】
 - 新增：
@@ -680,7 +752,9 @@ CI 部署若出現 D1 相關的權限錯誤，到後台編輯那顆 token，加�
 | `database_id` 可以推上公開 repo 嗎？ | 可以。它只是識別碼，沒有 Cloudflare 帳號授權的人拿到也動不了資料庫 |
 | 本機 API 有資料，線上卻是空的 | 本機與正式是兩個資料庫。線上要另外 `migrations apply --remote`，資料也不會自動同步 |
 | 線上 API 報 `no such table` | 程式碼先部署了、遷移還沒套用到正式資料庫，補跑 `migrations apply --remote` |
-| `d1 create` 失敗 | 名稱已被自己帳號用過，或免費方案已滿 10 個資料庫。用 `npx wrangler d1 list` 查，舊的要不要刪由你決定 |
+| `d1 create` 失敗 | 名稱已被自己帳號用過，或免費方案已滿 10 個資料庫。用 `npx wrangler d1 list` 查：若是上次中斷留下的，可沿用並把 `database_id` 補進設定；舊的要不要刪由你決定 |
+| 部署報 `could not automatically register` 或 `name is unavailable` | 帳號還沒有子網域，Wrangler 拿專案名去註冊但被占用。回步驟三在後台設定子網域，再重新部署。改 `wrangler.jsonc` 的 `name` 沒有用 |
+| 資源名稱腳本說無法解析設定檔 | `wrangler.jsonc` 語法有誤，修好再跑。腳本刻意不改走重新產生，以免名稱與已建立的資源對不起來 |
 | `/api/...` 回的是首頁 HTML | `run_worker_first` 沒設、寫錯，或 Wrangler 低於 4.20 |
 | 讀取次數用得很快 | D1 以「掃過的列數」計費，沒有索引的查詢會整張表掃。常用的 `WHERE` 欄位要建索引（寫成新的遷移檔） |
 
@@ -722,6 +796,7 @@ D1 免費方案的額度：
 | v0.2 | 2026-09-14 | 新增步驟十「加上 D1 資料庫與 API」：建立資料庫、遷移檔、`run_worker_first` 分流的 API Worker、本機與正式環境的套用順序。確立同意點：建立與正式遷移由 agent 在當下同意後執行（Wrangler 在非互動環境會自動跳過自己的確認），刪除與還原由使用者執行；建立資源與改結構走 Wrangler、MCP 只用來查看（兩者授權帳號可能不同）；D1 不主動提議。補免費額度、復原與常見問題。依官方文件撰寫，尚未實測 |
 | v0.3 | 2026-09-15 | 教學內容不變，**技能結構調整**：只在特定情況才走的內容從 `SKILL.md` 移到技能資料夾的附屬檔——D1（步驟十）→ `references/d1.md`，自動部署路線 B 與「從 B 換回 A」→ `references/github-actions.md`，隨技能安裝。`SKILL.md` 由 129 行降為 106 行，保留路線取捨表、路線 A、D1 兩個同意點與全部安全規則，並加上附屬檔索引表。依據是同日在 PC-YI-SL 實測 Codex、OpenCode、Antigravity 都讀得到技能資料夾裡的附屬檔（通則寫入 `TEMPLATE.md`〈附屬檔〉） |
 | v0.4 | 2026-09-24 | Cloudflare 正式部署改為使用者授權本次發布後可由 agent 執行；Workers Builds 連接 GitHub 後，推送到 production branch 可自動部署，agent 的 push 同樣要有發布授權並查核結果。同一批變更不重複手動部署。 |
+| v0.5 | 2026-11-01 | 新增步驟二之一「自動產生資源名稱」與步驟零「做到一半重跑」，技能加入 `scripts/resource-name.mjs`。構想來自三師爸的 [agent-connect-lazy-pack](https://github.com/mathruffian-dot/agent-connect-lazy-pack)（該 repo 未附授權條款，故未複製其文字與腳本，由本專案重寫）；與上游不同處：名稱完全不用 Email（固定 `cf-` 加隨機數字），避免帳號名稱進公開網址與 repo；重跑不產生新名稱由腳本保證；子網域仍由使用者設定。依 Wrangler 4.156 原始碼補兩點：agent 環境部署時會不經確認用專案名註冊子網域、`migrations list --remote` 會寫入正式資料庫。尚未以真實帳號跑過 |
 
 ---
 
@@ -735,4 +810,5 @@ D1 免費方案的額度：
 - [D1 遷移](https://developers.cloudflare.com/d1/reference/migrations/)
 - [D1 額度限制](https://developers.cloudflare.com/d1/platform/limits/)
 - [D1 時間點還原](https://developers.cloudflare.com/d1/reference/time-travel/)
+- [agent-connect-lazy-pack](https://github.com/mathruffian-dot/agent-connect-lazy-pack)（三師爸，資源名稱與可續跑的構想來源）
 - [Cloudflare 官方 MCP server 目錄](https://developers.cloudflare.com/agents/model-context-protocol/cloudflare/servers-for-cloudflare/)

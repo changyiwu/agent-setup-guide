@@ -42,6 +42,8 @@ Claude Code / Codex / OpenCode / Antigravity 四個 agent，不用再維護四�
 - 2026-10-28：#07 實測保留旋律換曲風——YuE2 cover（官方內建）中文會被唱成粵語、旋律不逐音照譜，ACE-Step 1.5 參考音訊旋律跑掉；結論是生成模型做不到逐音照譜，新增 `models/yue2.md`、`models/ace-step.md`（guide v0.19）
 - 2026-10-29：#07 修正上一條結論——YuE2 前段照得不錯，當初的「旋律跑掉」可能只是後段錯位，能否逐音照譜改為**未確定**，ACE-Step 1.5 參考音訊 cover 也改為未確定；中文被唱成粵語仍確定（guide v0.20）
 
+- 2026-11-01：#06 參考上游 `agent-connect-lazy-pack` 加入資源名稱自動產生與可中斷續跑（guide v0.5）；上游無授權條款，文字與腳本皆重寫，名稱完全不用 Email（`cf-` 加隨機數字），以免帳號名稱進公開網址與 repo
+
 ## 目標與路線圖
 
 - [x] 階段一：建立差異表（`agents.json`）、寫作規範（`TEMPLATE.md`）、安裝腳本（`scripts/install.ps1`）
@@ -99,7 +101,7 @@ agent-setup-guide/
 │   ├── 03-obsidian/SKILL.md
 │   ├── 04-firebase/SKILL.md
 │   ├── 05-draw/SKILL.md ＋ draw.py
-│   ├── 06-cloudflare/SKILL.md ＋ references/（D1、自動部署路線 B，隨技能安裝）
+│   ├── 06-cloudflare/SKILL.md ＋ references/（D1、自動部署路線 B，隨技能安裝）、scripts/resource-name.mjs（資源名稱）
 │   ├── 07-comfyui/SKILL.md ＋ models/（各模型筆記）、references/（平台專屬，如 Windows on ARM），隨技能安裝
 │   ├── 08-blender/SKILL.md ＋ scripts/、templates/、references/（官方 MCP＋背景 runner）
 │   └── install-all/SKILL.md
